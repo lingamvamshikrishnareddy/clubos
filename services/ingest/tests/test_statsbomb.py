@@ -3,14 +3,15 @@ from pathlib import Path
 
 import pytest
 
-from clubos_ingest.statsbomb import METRIC_KEYS, aggregate_match, is_progressive
+from clubos_ingest.statsbomb import METRIC_KEYS, POSITION_ROLES, aggregate_match, is_progressive, role_for_position
 
-METRICS_JSON = Path(__file__).parents[3] / "packages/sports/soccer/metrics.json"
+SOCCER = Path(__file__).parents[3] / "packages/sports/soccer"
 
 HOME = {"id": 1, "name": "Riverside FC"}
 STRIKER = {"id": 10, "name": "Test Striker"}
 MIDFIELDER = {"id": 8, "name": "Test Midfielder"}
 SUB = {"id": 20, "name": "Test Substitute"}
+BENCH = {"id": 30, "name": "Test Bench Player"}
 
 
 def ev(id_, minute, type_name, player=None, **extra):
@@ -46,7 +47,11 @@ EVENTS = [
     ev("r1", 58, "Ball Recovery", MIDFIELDER),
     ev("r2", 59, "Ball Recovery", MIDFIELDER, ball_recovery={"recovery_failure": True}),
     ev("sub", 60, "Substitution", STRIKER, substitution={"replacement": SUB}),
+    # Booked on the bench: never played.
+    ev("bb", 70, "Bad Behaviour", BENCH),
     ev("end", 90, "Half End"),
+    # Penalty shoot-out: excluded from stats and minutes.
+    ev("so", 125, "Shot", STRIKER, period=5, shot={"statsbomb_xg": 0.78, "type": {"name": "Penalty"}, "outcome": {"name": "Goal"}}),
 ]
 
 
@@ -56,13 +61,17 @@ def stats():
 
 
 def test_metric_keys_match_shared_definitions():
-    shared = {m["key"] for m in json.loads(METRICS_JSON.read_text())}
+    shared = {m["key"] for m in json.loads((SOCCER / "metrics.json").read_text())}
     assert set(METRIC_KEYS) == shared
 
 
 def test_minutes_from_lineups_and_substitutions(stats):
     assert stats["10"].minutes == 60
-    assert stats["8"].minutes == 90
+    assert stats["8"].minutes == 90  # Shoot-out does not extend the match.
+
+
+def test_players_who_never_played_have_no_row(stats):
+    assert "30" not in stats
 
 
 def test_striker_metrics(stats):
@@ -96,3 +105,18 @@ def test_provenance(stats):
 
 def test_is_progressive_requires_start_location():
     assert not is_progressive(None, [100, 40])
+
+
+def test_position_roles_use_shared_role_keys():
+    roles = {r["key"] for r in json.loads((SOCCER / "roles.json").read_text())}
+    assert set(POSITION_ROLES.values()) <= roles
+
+
+def test_unknown_position_stays_unknown():
+    assert role_for_position("Sweeper Keeper") is None
+    assert role_for_position(None) is None
+
+
+def test_team_and_most_frequent_position(stats):
+    assert stats["10"].source_team_id == "1"
+    assert stats["10"].position == "Center Forward"

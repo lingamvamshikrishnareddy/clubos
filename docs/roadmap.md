@@ -23,7 +23,7 @@ the *Bootstrap labels and milestones* workflow.
 | Postgres schema: provenance, identity, recruitment | Done |
 | StatsBomb open-data aggregation | Done |
 | CI: TypeScript, Python, schema | Done |
-| Load ingested stats into Postgres, with identity matching | To do |
+| Load ingested stats into Postgres, with identity matching | Done |
 | API: auth, organisations, roles | To do |
 | Web: player search, comparison, scouting reports, shortlists, squad view | To do |
 | CSV import with validation | To do |

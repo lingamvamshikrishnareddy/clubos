@@ -48,8 +48,11 @@ cd services/ingest && uv run --group dev pytest
 for f in db/migrations/*.sql; do psql -v ON_ERROR_STOP=1 -f "$f"; done
 psql -v ON_ERROR_STOP=1 -f db/tests/smoke.sql
 
-# Ingest one StatsBomb open-data match (prints per-player stats as JSON lines)
-cd services/ingest && uv run clubos-ingest-statsbomb 3788741
+# Print per-player stats for one StatsBomb open-data match
+cd services/ingest && uv run clubos-ingest-statsbomb match 3857276
+
+# Load a whole competition-season (e.g. FIFA World Cup 2022) into Postgres
+DATABASE_URL=postgresql://localhost/clubos uv run clubos-ingest-statsbomb load 43 106
 ```
 
 ## Data

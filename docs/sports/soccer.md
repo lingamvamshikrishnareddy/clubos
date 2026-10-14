@@ -37,6 +37,12 @@ These are computed from StatsBomb open-data events:
 ends at least 25% closer to the centre of the opponent's goal. For passes, only completed
 passes count.
 
+## Ingestion rules
+
+- **Penalty shoot-outs (period 5)** are excluded from all metrics and from minutes played.
+- **Unused substitutes** get no appearance, even if they appear in the events (for example, booked on the bench).
+- **Roles** come from the position the player held most often in the match. Unknown positions stay unknown.
+
 ## Known gaps
 
 - **Minutes:** sending-offs and injuries without a substitution are not yet handled. The player is credited until full time.

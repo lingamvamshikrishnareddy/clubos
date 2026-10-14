@@ -3,7 +3,7 @@ name = "clubos-ingest"
 version = "0.0.0"
 description = "Data connectors for ClubOS, starting with StatsBomb open data."
 requires-python = ">=3.12"
-dependencies = []
+dependencies = ["psycopg[binary]>=3.2"]
 
 [project.scripts]
 clubos-ingest-statsbomb = "clubos_ingest.cli:main"

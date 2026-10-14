@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./metrics.json": "./metrics.json"
+    "./metrics.json": "./metrics.json",
+    "./roles.json": "./roles.json"
   },
   "scripts": {
     "typecheck": "tsc -p .",

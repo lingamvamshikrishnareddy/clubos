@@ -24,13 +24,27 @@ jobs:
 
   python:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: services/ingest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      CLUBOS_TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
-      - run: uv run --locked --group dev pytest -q
+      - name: Apply migrations
+        run: for f in db/migrations/*.sql; do psql -v ON_ERROR_STOP=1 -q -f "$f"; done
+      - name: Tests (including database integration tests)
+        working-directory: services/ingest
+        run: uv run --locked --group dev pytest -q
 
   database:
     runs-on: ubuntu-latest

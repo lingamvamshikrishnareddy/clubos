@@ -10,6 +10,7 @@ Metric keys must match packages/sports/soccer/metrics.json.
 from __future__ import annotations
 
 import math
+from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any
@@ -20,6 +21,9 @@ SOURCE_ID = "statsbomb_open_data"
 GOAL_CENTRE = (120.0, 40.0)
 DEFENSIVE_ZONE_END_X = 48.0  # Defensive 40% of the pitch.
 PROGRESSION_RATIO = 0.75  # End at least 25% closer to goal.
+
+# Period 5 is a penalty shoot-out: not part of the match for stats or minutes.
+SHOOTOUT_PERIOD = 5
 
 SUCCESS_OUTCOMES = {"Won", "Success", "Success In Play", "Success Out"}
 
@@ -45,7 +49,9 @@ METRIC_KEYS = (
 class PlayerMatchStats:
     source_player_id: str
     player_name: str
+    source_team_id: str
     team_name: str
+    # Most frequent StatsBomb position in the match.
     position: str | None
     minutes: float | None
     metrics: dict[str, float] = field(default_factory=lambda: dict.fromkeys(METRIC_KEYS, 0.0))
@@ -97,6 +103,7 @@ def aggregate_match(
     ingested_at: datetime | None = None,
 ) -> list[PlayerMatchStats]:
     ingested = (ingested_at or datetime.now(timezone.utc)).isoformat()
+    events = [e for e in events if e.get("period", 1) != SHOOTOUT_PERIOD]
     minutes = _minutes_played(events)
     shot_xg = {
         e["id"]: e["shot"].get("statsbomb_xg", 0.0)
@@ -104,6 +111,7 @@ def aggregate_match(
         if e["type"]["name"] == "Shot"
     }
     players: dict[str, PlayerMatchStats] = {}
+    positions: dict[str, Counter[str]] = {}
 
     def stats_for(event: dict[str, Any]) -> PlayerMatchStats:
         pid = str(event["player"]["id"])
@@ -111,8 +119,9 @@ def aggregate_match(
             players[pid] = PlayerMatchStats(
                 source_player_id=pid,
                 player_name=event["player"]["name"],
+                source_team_id=str(event["team"]["id"]),
                 team_name=event["team"]["name"],
-                position=event.get("position", {}).get("name"),
+                position=None,
                 minutes=minutes.get(pid),
                 source_match_id=str(match_id),
                 ingested_at=ingested,
@@ -122,8 +131,14 @@ def aggregate_match(
     for event in events:
         if "player" not in event:
             continue
+        # Unused substitutes still appear in events (e.g. booked on the bench). When
+        # line-ups are known, only players who were on the pitch get an appearance.
+        if minutes and str(event["player"]["id"]) not in minutes:
+            continue
         kind = event["type"]["name"]
         m = stats_for(event).metrics
+        if position := event.get("position", {}).get("name"):
+            positions.setdefault(str(event["player"]["id"]), Counter())[position] += 1
 
         if kind == "Shot":
             shot = event["shot"]
@@ -165,4 +180,41 @@ def aggregate_match(
             if not event.get("ball_recovery", {}).get("recovery_failure"):
                 m["ball_recoveries"] += 1
 
+    for pid, counts in positions.items():
+        players[pid].position = counts.most_common(1)[0][0]
     return list(players.values())
+
+
+# StatsBomb position name -> soccer role key (packages/sports/soccer/roles.json).
+POSITION_ROLES = {
+    "Goalkeeper": "goalkeeper",
+    "Center Back": "centre_back",
+    "Left Center Back": "centre_back",
+    "Right Center Back": "centre_back",
+    "Left Back": "full_back",
+    "Right Back": "full_back",
+    "Left Wing Back": "full_back",
+    "Right Wing Back": "full_back",
+    "Center Defensive Midfield": "defensive_midfielder",
+    "Left Defensive Midfield": "defensive_midfielder",
+    "Right Defensive Midfield": "defensive_midfielder",
+    "Center Midfield": "central_midfielder",
+    "Left Center Midfield": "central_midfielder",
+    "Right Center Midfield": "central_midfielder",
+    "Center Attacking Midfield": "attacking_midfielder",
+    "Left Attacking Midfield": "attacking_midfielder",
+    "Right Attacking Midfield": "attacking_midfielder",
+    "Left Midfield": "winger",
+    "Right Midfield": "winger",
+    "Left Wing": "winger",
+    "Right Wing": "winger",
+    "Center Forward": "striker",
+    "Left Center Forward": "striker",
+    "Right Center Forward": "striker",
+    "Secondary Striker": "striker",
+}
+
+
+def role_for_position(position: str | None) -> str | None:
+    """Unknown or missing positions stay unknown rather than being guessed."""
+    return POSITION_ROLES.get(position) if position else None
