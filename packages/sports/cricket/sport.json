@@ -6,7 +6,7 @@
     "key": "balls_faced",
     "label": "Balls faced",
     "per": 100,
-    "minimumForComparison": 300
+    "minimumForComparison": 150
   },
   "roleExposure": {
     "fast_bowler": {
@@ -278,8 +278,8 @@
       "normalisation": "per_exposure",
       "higherIsBetter": true,
       "typical": [
-        0.5,
-        2.2
+        2.5,
+        7.5
       ]
     },
     {

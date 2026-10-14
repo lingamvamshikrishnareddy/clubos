@@ -183,6 +183,36 @@ def _load_match(cur: psycopg.Cursor, run_id: Any, season_id: Any, match: dict[st
     return len(rows)
 
 
+def _refresh_season_stats(cur: psycopg.Cursor, run_id: Any, season_id: Any) -> None:
+    """Rolls match appearances up into season stats. All StatsBomb metrics are counts or
+    xG sums, so season values are sums; unknown minutes stay out of the exposure."""
+    cur.execute(
+        "insert into player_season_stats (player_id, season_id, team_id, role_key, exposure, exposure_unit,"
+        " appearances, source_id, source_record_id, ingestion_run_id)"
+        " select a.player_id, m.season_id, a.team_id, mode() within group (order by a.role_key), sum(a.minutes),"
+        "  'minutes', count(*), a.source_id, a.player_id::text || ':' || m.season_id::text, %s"
+        " from player_match_appearances a join matches m on m.id = a.match_id"
+        " where m.season_id = %s and a.source_id = %s"
+        " group by a.player_id, m.season_id, a.team_id, a.source_id"
+        " on conflict (player_id, season_id, team_id, source_id) do update set"
+        "  role_key = excluded.role_key, exposure = excluded.exposure, appearances = excluded.appearances,"
+        "  ingestion_run_id = excluded.ingestion_run_id, ingested_at = now()",
+        (run_id, season_id, SOURCE_ID),
+    )
+    cur.execute(
+        "insert into player_season_metric_values (season_stats_id, metric_key, value)"
+        " select s.id, v.metric_key, sum(v.value)"
+        " from player_season_stats s"
+        " join player_match_appearances a on a.player_id = s.player_id and a.team_id = s.team_id and a.source_id = s.source_id"
+        " join matches m on m.id = a.match_id and m.season_id = s.season_id"
+        " join player_metric_values v on v.appearance_id = a.id"
+        " where s.season_id = %s and s.source_id = %s"
+        " group by s.id, v.metric_key"
+        " on conflict (season_stats_id, metric_key) do update set value = excluded.value",
+        (season_id, SOURCE_ID),
+    )
+
+
 def load_competition_season(
     conn: psycopg.Connection,
     competition_id: int,
@@ -234,6 +264,7 @@ def load_competition_season(
         raise
 
     with conn.cursor() as cur:
+        _refresh_season_stats(cur, run_id, db_season_id)
         cur.execute(
             "update ingestion_runs set status = 'succeeded', finished_at = now() where id = %s",
             (run_id,),

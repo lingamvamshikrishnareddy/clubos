@@ -1,0 +1,63 @@
+import numpy as np
+import pytest
+
+from clubos_ml.stats import (
+    cross_validate,
+    fit_ridge,
+    next_season_label,
+    normalise,
+    percentile_rank,
+    shrink,
+    workload_indicator,
+)
+
+
+def test_percentile_rank_matches_core_rule():
+    assert percentile_rank(3, [1, 2, 3, 4], True) == 62.5
+    assert percentile_rank(1, [1, 2, 3, 4], False) == 87.5
+    assert percentile_rank(1, [], True) is None
+
+
+def test_normalise_keeps_missing_missing():
+    assert normalise(None, 900, 90, "per_exposure") is None
+    assert normalise(10, 900, 90, "per_exposure") == 1
+    assert normalise(0.31, 900, 90, "rate") == 0.31
+    assert normalise(3, 0, 90, "per_exposure") is None
+
+
+def test_ridge_recovers_signal_and_interval_is_calibrated():
+    rng = np.random.default_rng(0)
+    x = rng.normal(size=(600, 3))
+    y = 2.0 * x[:, 0] - 1.0 * x[:, 1] + rng.normal(scale=0.5, size=600)
+    model = fit_ridge(x, y, ["a", "b", "c"], alpha=0.1)
+    assert model.coef == pytest.approx([2.0, -1.0, 0.0], abs=0.1)
+    assert model.residual_sd == pytest.approx(0.5, abs=0.05)
+    validation = cross_validate(x, y, ["a", "b", "c"])
+    assert validation["interval_coverage"] == pytest.approx(0.8, abs=0.05)
+
+
+def test_shrinkage_weights_by_exposure():
+    assert shrink(10, 0, 4, 100) == (4, 0)
+    estimate, weight = shrink(10, 300, 4, 100)
+    assert weight == 0.75
+    assert estimate == pytest.approx(8.5)
+
+
+@pytest.mark.parametrize("label, expected", [("2025/26", "2026/27"), ("2025-26", "2026-27"), ("2026", "2027"), ("Spring", "after Spring")])
+def test_next_season_label(label, expected):
+    assert next_season_label(label) == expected
+
+
+def test_workload_indicator_flags_a_spike():
+    steady = [300.0, 400, 0, 350, 300, 450, 0] * 3
+    spike = [600.0, 700, 0, 650, 600, 750, 0]
+    ind = workload_indicator(steady + spike, [2.4, 2.6, 2.8])
+    # acute 3,300 / chronic (3 x 1,800 + 3,300) / 4 = 2,175
+    assert ind.acwr == pytest.approx(1.52, abs=0.01)
+    assert "load_spike" in ind.flags
+    assert "low_wellness" in ind.flags
+
+
+def test_workload_indicator_without_history_has_no_ratio():
+    ind = workload_indicator([0.0] * 28, [])
+    assert ind.acwr is None and ind.monotony is None and ind.flags == []

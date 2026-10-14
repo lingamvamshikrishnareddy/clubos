@@ -35,7 +35,7 @@ FILES = {
 }
 
 TABLES = (
-    "player_metric_values, player_match_appearances, player_identities, players, "
+    "player_season_metric_values, player_season_stats, player_metric_values, player_match_appearances, player_identities, players, "
     "matches, seasons, competitions, teams, source_entity_ids, ingestion_runs"
 )
 
@@ -58,8 +58,9 @@ def scalar(conn, sql, *params):
 def counts(conn):
     return {
         table: scalar(conn, f"select count(*) from {table}")
-        for table in ("competitions", "seasons", "teams", "matches", "players",
-                      "player_identities", "player_match_appearances", "player_metric_values")
+        for table in ("competitions", "seasons", "teams", "matches", "players", "player_identities",
+                      "player_match_appearances", "player_metric_values", "player_season_stats",
+                      "player_season_metric_values")
     }
 
 
@@ -69,6 +70,7 @@ def test_loads_competition_season(conn):
     assert counts(conn) == {
         "competitions": 1, "seasons": 1, "teams": 2, "matches": 1, "players": 2,
         "player_identities": 2, "player_match_appearances": 2, "player_metric_values": 28,
+        "player_season_stats": 2, "player_season_metric_values": 28,
     }
     assert scalar(conn, "select gender from competitions") == "men"
     assert conn.execute("select status, records_ingested from ingestion_runs where id = %s", (run_id,)).fetchone() == (
@@ -89,6 +91,17 @@ def test_loads_competition_season(conn):
         " join player_identities i on i.player_id = a.player_id"
         " where i.external_id = '8' and v.metric_key = 'progressive_passes'",
     ) == 1
+
+
+def test_rolls_up_season_stats(conn):
+    load_competition_season(conn, 1, 2, fetch=FILES.__getitem__)
+    rows = conn.execute(
+        "select i.external_id, s.role_key, s.exposure, s.exposure_unit, s.appearances, v.value"
+        " from player_season_stats s join player_identities i on i.player_id = s.player_id"
+        " join player_season_metric_values v on v.season_stats_id = s.id and v.metric_key = 'shots'"
+        " order by i.external_id"
+    ).fetchall()
+    assert rows == [("10", "striker", 60, "minutes", 1, 2), ("8", "central_midfielder", 90, "minutes", 1, 0)]
 
 
 def test_reloading_is_idempotent(conn):

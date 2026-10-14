@@ -1,29 +1,21 @@
 # Roadmap
 
-Stages can overlap when customers need them to. Each stage is a GitHub milestone, created by
-the *Bootstrap labels and milestones* workflow.
+Each stage is a GitHub milestone, created by the *Bootstrap labels and milestones* workflow.
+The **data and model foundation** for every stage is in place for all six sports. The main
+remaining work is the **API and web app** that put it in front of club staff.
 
-| Stage | Modules | Why this order |
+| Stage | Foundation built | Remaining |
 |---|---|---|
-| 1 – Recruitment core | Player database, data imports, comparisons, scouting reports, shortlists, lightweight squad view | A useful recruitment workflow without advanced computer vision |
-| 2 – Video and match evidence | Video tagging, clips, event-linked statistics, tactical reports | Adds evidence to recruitment and match decisions |
-| 3 – Connected decisions | Tactical-fit recommendations, performance forecasts, budget scenarios | Differentiation through connected decisions |
-| 4 – Development and availability | Training loads, development, workload alerts, risk indicators | Needs consistent longitudinal data and careful validation |
-| 5 – Squad operations | Attendance, contracts, staff workflows, academy administration | Expands daily usage across the club |
-| 6 – Commercial operations | Stadium income, sponsorships, advertising inventory, deals, executive planning | Expands into the club's business |
-| 7 – Additional sports | Further sport modules | Reuses the shared foundation |
+| 1 – Recruitment core | Player database with provenance and identity; StatsBomb connector; season stats; like-for-like role comparison; scouting reports; shortlists; squad depth analysis | API, web screens, CSV import, identity review queue |
+| 2 – Video and match evidence | Videos, tagged events using each sport's tag vocabulary, clips, playlists, clips as scouting evidence, tactical reports | Video upload and storage, player UI, automatic tagging (computer vision) |
+| 3 – Connected decisions | Market data; valuation model with ranges and drivers; performance forecasts; club style profiles; tactical-fit recommendations with reasons and clips; contracts; budget scenarios | Recommendation and scenario UI; league-strength adjustment |
+| 4 – Development and availability | Training sessions and session RPE load; sport-specific external load; wellness; availability with separate medical records; development goals; assessments; workload indicators | Player check-in app, medical permissions (RLS), wearable connectors |
+| 5 – Squad operations | Staff profiles, calendar, attendance, tasks, announcements, academy registrations and guardians, facilities with double-booking prevention | Scheduling UI, notifications |
+| 6 – Commercial operations | Budgets, transactions, sponsors and deals, advertising inventory and bookings, stadium events, academy fees and payments; executive views (wage bill, squad value, budget vs actual, revenue by stream, cost per player) | Executive dashboards, accounting export |
+| 7 – Additional sports | Soccer, American football, baseball, basketball, ice hockey, cricket | Real-data connectors for the five non-soccer sports |
 
-## Stage 1 status
+## Next up
 
-| Item | Status |
-|---|---|
-| Sport-module contract (`packages/core`) | Done |
-| Like-for-like role comparison with low-sample handling | Done |
-| Soccer module: roles, events, metrics | Done |
-| Postgres schema: provenance, identity, recruitment | Done |
-| StatsBomb open-data aggregation | Done |
-| CI: TypeScript, Python, schema | Done |
-| Load ingested stats into Postgres, with identity matching | Done |
-| API: auth, organisations, roles | To do |
-| Web: player search, comparison, scouting reports, shortlists, squad view | To do |
-| CSV import with validation | To do |
+1. **API:** auth, organisations, roles and row-level security, including medical-only access to `medical_records`.
+2. **Web app:** player search and comparison, recommendations, squad depth, budget scenarios, executive dashboard.
+3. **Real data for the other sports:** licensed or open data sources, each reviewed with the *Data source request* template.

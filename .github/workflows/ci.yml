@@ -21,9 +21,14 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm test
+      - name: Sport reference docs are up to date
+        run: python3 scripts/sport-docs.py --check
 
   python:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [ingest, ml]
     services:
       postgres:
         image: postgres:16
@@ -43,7 +48,7 @@ jobs:
       - name: Apply migrations
         run: for f in db/migrations/*.sql; do psql -v ON_ERROR_STOP=1 -q -f "$f"; done
       - name: Tests (including database integration tests)
-        working-directory: services/ingest
+        working-directory: services/${{ matrix.service }}
         run: uv run --locked --group dev pytest -q
 
   database:
@@ -66,3 +71,8 @@ jobs:
         run: for f in db/migrations/*.sql; do psql -v ON_ERROR_STOP=1 -q -f "$f"; done
       - name: Schema smoke test
         run: psql -v ON_ERROR_STOP=1 -q -f db/tests/smoke.sql
+      - uses: astral-sh/setup-uv@v5
+      - name: Full demo build (fictional data for all six sports and every model)
+        run: |
+          psql -q -c "create database demo"
+          DATABASE_URL=postgresql://postgres:postgres@localhost:5432/demo AS_OF=2026-10-14 scripts/demo-db.sh

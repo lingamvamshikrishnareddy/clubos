@@ -57,7 +57,7 @@ metrics, tactical models and recruitment logic. See
 
 | Sport | Intelligence focus | Competitors to study |
 |---|---|---|
-| Soccer (first) | Passing networks, progressive actions, xG, pressing, roles, transfer valuation, tactical fit | Wyscout, StatsBomb |
+| Soccer | Passing networks, progressive actions, xG, pressing, roles, transfer valuation, tactical fit | Wyscout, StatsBomb |
 | Cricket | Batter-vs-bowler matchups, pitch maps, wagon wheels, bowling variations, field placements, format-specific form | Cricket-21, NV Play |
 | Basketball | Shot quality, spacing, lineups, possession efficiency, matchups, pick-and-roll coverage | Hudl, Instat |
 | Baseball | Pitch quality, spin, velocity, expected outcomes, positioning, development | TrackMan, Rapsodo |

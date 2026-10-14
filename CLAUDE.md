@@ -6,8 +6,13 @@
 - Missing data stays `null` or absent, never `0`. Imported rows carry provenance (ADR-0002).
 - Never commit third-party data, video or secrets.
 
-Checks to run before pushing:
+- Model outputs come from `services/ml` and always reference a model run; health outputs are "indicators", never diagnoses (ADR-0003).
+- Demo data is fictional, deterministic and recorded under the `mock` source. Never present it as real.
 
-    pnpm typecheck && pnpm test
+Checks to run before pushing (Python database tests need CLUBOS_TEST_DATABASE_URL pointing at a migrated database):
+
+    pnpm typecheck && pnpm test && python3 scripts/sport-docs.py --check
     (cd services/ingest && uv run --group dev pytest -q)
+    (cd services/ml && uv run --group dev pytest -q)
     for f in db/migrations/*.sql; do psql -v ON_ERROR_STOP=1 -q -f "$f"; done && psql -v ON_ERROR_STOP=1 -q -f db/tests/smoke.sql
+    DATABASE_URL=<empty db> scripts/demo-db.sh
