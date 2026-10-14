@@ -12,7 +12,7 @@ remaining work is the **API and web app** that put it in front of club staff.
 | 4 – Development and availability | Training sessions and session RPE load; sport-specific external load; wellness; availability with medical records restricted to medical staff (row-level security); development goals; assessments; workload indicators; generated player reports | Player check-in app, wearable connectors |
 | 5 – Squad operations | Staff profiles, calendar, attendance, tasks, announcements, direct messaging, academy registrations, guardians and renewals, facilities with double-booking prevention, payroll runs and payslips | Scheduling UI, notifications |
 | 6 – Commercial operations | Budgets, transactions, sponsors and deals, advertising inventory and bookings, stadium events, academy fees and payments; full-year financial forecasts and three-year plans with committed wages and sponsorship; executive views (wage bill, squad value, budget vs actual, revenue by stream, cost per player, club and player performance ROI); decisions with outcome reviews | Executive dashboards, accounting export |
-| 7 – Additional sports | Soccer, American football, baseball, basketball, ice hockey, cricket | Real-data connectors for the five non-soccer sports |
+| 7 – Additional sports and real leagues | Soccer, American football, baseball, basketball, ice hockey, cricket; real league structures and rules (NFL, NBA, IPL, Premier League, EFL); real data for the NFL (nflverse), IPL (Cricsheet) and StatsBomb competitions | Licensed data for the NBA and EFL; MLB and NHL connectors |
 
 ## Next up
 

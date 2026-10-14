@@ -8,6 +8,7 @@
 
 - Model outputs come from `services/ml` and always reference a model run; health outputs are "indicators", never diagnoses (ADR-0003).
 - Demo data is fictional, deterministic and recorded under the `mock` source. Never present it as real.
+- Real leagues live in `packages/leagues/leagues.json`; every rule names its season and must be reviewed each season. Connectors load into these competitions (`clubos-leagues`, `clubos-ingest-nflverse`, `clubos-ingest-cricsheet`).
 - Access control lives in Postgres row-level security (ADR-0004). New club-private tables need a policy in a migration and a case in `db/tests/rls.sql`; new views must be created `with (security_invoker = true)`.
 
 Checks to run before pushing (Python database tests need CLUBOS_TEST_DATABASE_URL pointing at a migrated database):

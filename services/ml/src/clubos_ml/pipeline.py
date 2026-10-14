@@ -70,6 +70,36 @@ def age_on(birth: date | None, on: date) -> float | None:
     return (on - birth).days / 365.25 if birth else None
 
 
+def merge_team_rows(samples: list[Sample], metrics: dict[str, dict[str, Any]]) -> list[Sample]:
+    """One sample per player and season. A player who moved teams mid-season has a row per
+    team; counts are summed, rates are weighted by exposure, and the role is the one with
+    the most exposure (like a stats site's combined line for a traded player)."""
+    grouped: dict[tuple[Any, Any], list[Sample]] = defaultdict(list)
+    for s in samples:
+        grouped[(s.player_id, s.season_id)].append(s)
+    merged = []
+    for group in grouped.values():
+        if len(group) == 1:
+            merged.append(group[0])
+            continue
+        main = max(group, key=lambda s: s.exposure)
+        exposure = sum(s.exposure for s in group)
+        totals: dict[str, float | None] = {}
+        for key in {k for s in group for k in s.totals}:
+            present = [s for s in group if s.totals.get(key) is not None]
+            if not present:
+                totals[key] = None
+            elif metrics.get(key, {}).get("normalisation") == "rate":
+                weight = sum(s.exposure for s in present)
+                totals[key] = (sum(s.totals[key] * s.exposure for s in present) / weight if weight
+                               else mean(s.totals[key] for s in present))
+            else:
+                totals[key] = sum(s.totals[key] for s in present)
+        merged.append(Sample(main.player_id, main.competition_id, main.season_id, main.season_label, main.role,
+                             exposure, main.birth_date, totals))
+    return merged
+
+
 def latest_samples(conn: psycopg.Connection, sport: dict[str, Any]) -> list[Sample]:
     """Season stats from the latest season of each competition in the sport, with
     direction-aware percentiles computed within (season, role) among players with enough
@@ -94,12 +124,12 @@ def latest_samples(conn: psycopg.Connection, sport: dict[str, Any]) -> list[Samp
         """,
         (sport["id"],),
     ).fetchall()
-    samples = [
+    metrics = {m["key"]: m for m in sport["metrics"]}
+    samples = merge_team_rows([
         Sample(r[0], r[1], r[2], r[3], r[4], float(r[5]), r[6],
                {k: (float(v) if v is not None else None) for k, v in r[7].items()})
         for r in rows
-    ]
-    metrics = {m["key"]: m for m in sport["metrics"]}
+    ], metrics)
     groups: dict[tuple[Any, str], list[Sample]] = defaultdict(list)
     for s in samples:
         groups[(s.season_id, s.role)].append(s)

@@ -1,0 +1,155 @@
+{
+  "_note": "Factual reference data about real competitions: structure and league rules. Rules change every season; each rule records the season it applies to and must be reviewed annually. No affiliation with or endorsement by these leagues is implied.",
+  "leagues": [
+    {
+      "key": "nfl",
+      "name": "National Football League",
+      "sport": "american_football",
+      "country": "United States",
+      "gender": "men",
+      "tier": 1,
+      "structure": {
+        "teams": 32,
+        "regularSeasonGames": 17,
+        "groups": [
+          { "kind": "conference", "name": "AFC", "children": [
+            { "kind": "division", "name": "AFC East", "teams": [["BUF", "Buffalo Bills"], ["MIA", "Miami Dolphins"], ["NE", "New England Patriots"], ["NYJ", "New York Jets"]] },
+            { "kind": "division", "name": "AFC North", "teams": [["BAL", "Baltimore Ravens"], ["CIN", "Cincinnati Bengals"], ["CLE", "Cleveland Browns"], ["PIT", "Pittsburgh Steelers"]] },
+            { "kind": "division", "name": "AFC South", "teams": [["HOU", "Houston Texans"], ["IND", "Indianapolis Colts"], ["JAX", "Jacksonville Jaguars"], ["TEN", "Tennessee Titans"]] },
+            { "kind": "division", "name": "AFC West", "teams": [["DEN", "Denver Broncos"], ["KC", "Kansas City Chiefs"], ["LV", "Las Vegas Raiders"], ["LAC", "Los Angeles Chargers"]] }
+          ] },
+          { "kind": "conference", "name": "NFC", "children": [
+            { "kind": "division", "name": "NFC East", "teams": [["DAL", "Dallas Cowboys"], ["NYG", "New York Giants"], ["PHI", "Philadelphia Eagles"], ["WAS", "Washington Commanders"]] },
+            { "kind": "division", "name": "NFC North", "teams": [["CHI", "Chicago Bears"], ["DET", "Detroit Lions"], ["GB", "Green Bay Packers"], ["MIN", "Minnesota Vikings"]] },
+            { "kind": "division", "name": "NFC South", "teams": [["ATL", "Atlanta Falcons"], ["CAR", "Carolina Panthers"], ["NO", "New Orleans Saints"], ["TB", "Tampa Bay Buccaneers"]] },
+            { "kind": "division", "name": "NFC West", "teams": [["ARI", "Arizona Cardinals"], ["LA", "Los Angeles Rams"], ["SF", "San Francisco 49ers"], ["SEA", "Seattle Seahawks"]] }
+          ] }
+        ],
+        "postseason": "14 teams: 7 per conference (4 division winners and 3 wild cards)"
+      },
+      "rules": {
+        "season": "2025",
+        "salaryCap": { "kind": "hard", "amount": 279200000, "currency": "USD" },
+        "squadSize": { "max": 53, "label": "active roster" },
+        "standings": { "method": "win_percentage" }
+      },
+      "sources": { "nflverse": "NFL" }
+    },
+    {
+      "key": "nba",
+      "name": "National Basketball Association",
+      "sport": "basketball",
+      "country": "United States",
+      "gender": "men",
+      "tier": 1,
+      "structure": {
+        "teams": 30,
+        "regularSeasonGames": 82,
+        "groups": [
+          { "kind": "conference", "name": "Eastern Conference", "children": [
+            { "kind": "division", "name": "Atlantic", "teams": [["BOS", "Boston Celtics"], ["BKN", "Brooklyn Nets"], ["NYK", "New York Knicks"], ["PHI", "Philadelphia 76ers"], ["TOR", "Toronto Raptors"]] },
+            { "kind": "division", "name": "Central", "teams": [["CHI", "Chicago Bulls"], ["CLE", "Cleveland Cavaliers"], ["DET", "Detroit Pistons"], ["IND", "Indiana Pacers"], ["MIL", "Milwaukee Bucks"]] },
+            { "kind": "division", "name": "Southeast", "teams": [["ATL", "Atlanta Hawks"], ["CHA", "Charlotte Hornets"], ["MIA", "Miami Heat"], ["ORL", "Orlando Magic"], ["WAS", "Washington Wizards"]] }
+          ] },
+          { "kind": "conference", "name": "Western Conference", "children": [
+            { "kind": "division", "name": "Northwest", "teams": [["DEN", "Denver Nuggets"], ["MIN", "Minnesota Timberwolves"], ["OKC", "Oklahoma City Thunder"], ["POR", "Portland Trail Blazers"], ["UTA", "Utah Jazz"]] },
+            { "kind": "division", "name": "Pacific", "teams": [["GSW", "Golden State Warriors"], ["LAC", "LA Clippers"], ["LAL", "Los Angeles Lakers"], ["PHX", "Phoenix Suns"], ["SAC", "Sacramento Kings"]] },
+            { "kind": "division", "name": "Southwest", "teams": [["DAL", "Dallas Mavericks"], ["HOU", "Houston Rockets"], ["MEM", "Memphis Grizzlies"], ["NOP", "New Orleans Pelicans"], ["SAS", "San Antonio Spurs"]] }
+          ] }
+        ],
+        "postseason": "Seeds 1–6 per conference qualify; seeds 7–10 play the play-in tournament for the last two places"
+      },
+      "rules": {
+        "season": "2025-26",
+        "salaryCap": { "kind": "soft", "amount": 154647000, "currency": "USD", "luxuryTaxLine": 187895000, "firstApron": 195945000, "secondApron": 207824000 },
+        "squadSize": { "max": 15, "label": "standard contracts (two-way contracts excluded)" },
+        "standings": { "method": "win_percentage" }
+      }
+    },
+    {
+      "key": "ipl",
+      "name": "Indian Premier League",
+      "sport": "cricket",
+      "country": "India",
+      "gender": "men",
+      "tier": 1,
+      "attributes": { "format": "T20" },
+      "structure": {
+        "teams": 10,
+        "groups": [
+          { "kind": "league", "name": "IPL", "teams": [["CSK", "Chennai Super Kings"], ["DC", "Delhi Capitals"], ["GT", "Gujarat Titans"], ["KKR", "Kolkata Knight Riders"], ["LSG", "Lucknow Super Giants"], ["MI", "Mumbai Indians"], ["PBKS", "Punjab Kings"], ["RR", "Rajasthan Royals"], ["RCB", "Royal Challengers Bengaluru"], ["SRH", "Sunrisers Hyderabad"]] }
+        ],
+        "postseason": "Top four: Qualifier 1, Eliminator, Qualifier 2, Final"
+      },
+      "rules": {
+        "season": "2025",
+        "auctionPurse": { "amount": 1200000000, "currency": "INR" },
+        "squadSize": { "min": 18, "max": 25 },
+        "foreignPlayers": { "homeNationality": "India", "maxInSquad": 8, "maxInLineup": 4, "label": "overseas players" },
+        "standings": { "method": "points", "win": 2, "draw": 1, "loss": 0, "noResult": 1, "tiebreak": "net_run_rate" }
+      },
+      "sources": { "cricsheet": "ipl" }
+    },
+    {
+      "key": "premier_league",
+      "name": "Premier League",
+      "sport": "soccer",
+      "country": "England",
+      "gender": "men",
+      "tier": 1,
+      "pyramid": "english_football",
+      "structure": { "teams": 20, "regularSeasonGames": 38, "groups": [] },
+      "rules": {
+        "season": "2025/26",
+        "standings": { "method": "points", "win": 3, "draw": 1, "loss": 0, "tiebreak": "goal_difference" },
+        "promotionRelegation": { "relegated": 3, "relegatedTo": "efl_championship" }
+      },
+      "sources": { "statsbomb": [[2, 27]] }
+    },
+    {
+      "key": "efl_championship",
+      "name": "EFL Championship",
+      "sport": "soccer",
+      "country": "England",
+      "gender": "men",
+      "tier": 2,
+      "pyramid": "english_football",
+      "structure": { "teams": 24, "regularSeasonGames": 46, "groups": [] },
+      "rules": {
+        "season": "2025/26",
+        "standings": { "method": "points", "win": 3, "draw": 1, "loss": 0, "tiebreak": "goal_difference" },
+        "promotionRelegation": { "automaticPromotion": 2, "playoffPlaces": [3, 6], "promotedTo": "premier_league", "relegated": 3, "relegatedTo": "efl_league_one" }
+      }
+    },
+    {
+      "key": "efl_league_one",
+      "name": "EFL League One",
+      "sport": "soccer",
+      "country": "England",
+      "gender": "men",
+      "tier": 3,
+      "pyramid": "english_football",
+      "structure": { "teams": 24, "regularSeasonGames": 46, "groups": [] },
+      "rules": {
+        "season": "2025/26",
+        "standings": { "method": "points", "win": 3, "draw": 1, "loss": 0, "tiebreak": "goal_difference" },
+        "promotionRelegation": { "automaticPromotion": 2, "playoffPlaces": [3, 6], "promotedTo": "efl_championship", "relegated": 4, "relegatedTo": "efl_league_two" }
+      }
+    },
+    {
+      "key": "efl_league_two",
+      "name": "EFL League Two",
+      "sport": "soccer",
+      "country": "England",
+      "gender": "men",
+      "tier": 4,
+      "pyramid": "english_football",
+      "structure": { "teams": 24, "regularSeasonGames": 46, "groups": [] },
+      "rules": {
+        "season": "2025/26",
+        "standings": { "method": "points", "win": 3, "draw": 1, "loss": 0, "tiebreak": "goal_difference" },
+        "promotionRelegation": { "automaticPromotion": 3, "playoffPlaces": [4, 7], "promotedTo": "efl_league_one", "relegated": 2, "relegatedTo": "National League" }
+      }
+    }
+  ]
+}

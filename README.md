@@ -17,6 +17,10 @@ video tags and valuation logic are defined per sport. Six sports are supported:
 | Ice hockey | `packages/sports/ice-hockey` | time on ice (per 60); shots against for goaltenders | annual salary |
 | Cricket | `packages/sports/cricket` | balls faced (per 100); balls bowled for bowlers | annual salary |
 
+Real leagues are modelled with their structure and rules: **NFL, NBA, IPL, Premier League and the
+EFL** (Championship, League One, League Two). Real data loads for the NFL (nflverse), the IPL
+(Cricsheet) and football competitions in StatsBomb's open data. See [leagues](docs/leagues.md).
+
 Every feature answers one of four questions: *Who should we sign? Where are we losing
 performance? How do we improve availability and development? How do we allocate our budget?*
 
@@ -42,13 +46,14 @@ Requirements: Node 22+, pnpm 10, Python 3.12+, [uv](https://docs.astral.sh/uv/),
 
 ```sh
 createdb clubos_demo
-DATABASE_URL=postgresql://localhost/clubos_demo scripts/demo-db.sh --with-statsbomb
+DATABASE_URL=postgresql://localhost/clubos_demo scripts/demo-db.sh --with-statsbomb --with-nfl 2024
+# add --with-ipl https://cricsheet.org/downloads/ipl_json.zip (or a downloaded zip) for the IPL
 ```
 
 The script runs four steps:
 1. It applies the schema.
 2. It loads fictional demo data for all six sports: leagues, two seasons, and one club per sport with staff, contracts, scouting, video, training load, academy, finance and commercial data.
-3. With `--with-statsbomb`, it adds the real FIFA World Cup 2022 event data.
+3. It loads real league structures and rules. Optional flags add real data: the FIFA World Cup 2022 (`--with-statsbomb`), an NFL season (`--with-nfl`) and the IPL (`--with-ipl`).
 4. It runs every model.
 
 The whole build takes about 30 seconds. Then try:
@@ -68,6 +73,9 @@ select * from v_squad_value;
 -- Executive planning: full-year forecast vs budget, and the three-year plan
 select category, basis, actual_to_date, projected_full_year, budget from financial_forecasts;
 select * from v_club_performance_roi;
+
+-- Real league tables, ranked by each league's rules
+select position, team, won, lost, win_percentage from v_league_table where competition = 'National Football League';
 
 -- Sport analytics from play-by-play
 select * from v_cricket_matchups order by balls desc limit 10;
@@ -97,5 +105,9 @@ python3 scripts/sport-docs.py --check
 ## Data
 
 - **No real third-party data in git.** No third-party data or video is committed to this repository. Connectors fetch data at ingest time and record its source and licence (see [ADR-0002](docs/adr/0002-data-provenance-and-identity.md)).
-- **Soccer open data:** [StatsBomb Open Data](https://github.com/statsbomb/open-data), used under its licence with attribution.
+- **Open data used:**
+  - Soccer: [StatsBomb Open Data](https://github.com/statsbomb/open-data), under its licence with attribution.
+  - NFL: [nflverse](https://github.com/nflverse/nflverse-data) (CC BY 4.0).
+  - IPL: [Cricsheet](https://cricsheet.org).
+- **League names are factual reference only:** league and team names in `packages/leagues` are used for reference and imply no affiliation.
 - **Demo data is fictional.** All clubs, leagues, people and results in the demo data are invented, and they are recorded under the `mock` data source.

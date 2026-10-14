@@ -20,6 +20,12 @@
       "label": "Balls bowled",
       "per": 120,
       "minimumForComparison": 360
+    },
+    "bowler": {
+      "key": "balls_bowled",
+      "label": "Balls bowled",
+      "per": 120,
+      "minimumForComparison": 360
     }
   },
   "roles": [
@@ -61,6 +67,11 @@
     {
       "key": "spin_bowler",
       "label": "Spin bowler",
+      "group": "bowling"
+    },
+    {
+      "key": "bowler",
+      "label": "Bowler (style not recorded)",
       "group": "bowling"
     }
   ],
@@ -422,6 +433,13 @@
       "bowling_average",
       "bowling_dot_pct",
       "bowling_strike_rate"
+    ],
+    "bowler": [
+      "wickets",
+      "economy_rate",
+      "bowling_strike_rate",
+      "bowling_average",
+      "bowling_dot_pct"
     ]
   }
 }

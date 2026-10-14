@@ -7,6 +7,7 @@ Generated from `packages/sports/cricket/sport.json` by `scripts/sport-docs.py`. 
 - Default: **Balls faced**, values shown per 100; low-sample below 150.
 - `fast_bowler`: **Balls bowled**, per 120; low-sample below 360.
 - `spin_bowler`: **Balls bowled**, per 120; low-sample below 360.
+- `bowler`: **Balls bowled**, per 120; low-sample below 360.
 
 Valuation basis: **annual salary**.
 
@@ -22,6 +23,7 @@ Valuation basis: **annual salary**.
 | All-rounder (`all_rounder`) | all-round | `runs`, `batting_strike_rate`, `wickets`, `economy_rate`, `catches` |
 | Fast bowler (`fast_bowler`) | bowling | `wickets`, `economy_rate`, `bowling_strike_rate`, `bowling_dot_pct`, `average_speed` |
 | Spin bowler (`spin_bowler`) | bowling | `wickets`, `economy_rate`, `bowling_average`, `bowling_dot_pct`, `bowling_strike_rate` |
+| Bowler (style not recorded) (`bowler`) | bowling | `wickets`, `economy_rate`, `bowling_strike_rate`, `bowling_average`, `bowling_dot_pct` |
 
 ## Metrics
 
