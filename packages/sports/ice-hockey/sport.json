@@ -353,5 +353,31 @@
       "goals_saved_above_expected",
       "high_danger_save_pct"
     ]
-  }
+  },
+  "units": [
+    {
+      "kind": "forward_line",
+      "label": "Forward line",
+      "groups": [
+        "forward"
+      ],
+      "size": 3,
+      "valueEvents": [
+        "shot"
+      ],
+      "valueKind": "xg"
+    },
+    {
+      "kind": "defence_pair",
+      "label": "Defence pair",
+      "groups": [
+        "defence"
+      ],
+      "size": 2,
+      "valueEvents": [
+        "shot"
+      ],
+      "valueKind": "xg"
+    }
+  ]
 }

@@ -26,6 +26,7 @@ import psycopg
 from psycopg.types.json import Jsonb
 
 from .mock_config import FIRST_NAMES, LAST_NAMES, LEAGUES, NATIONALITIES, LeagueConfig
+from .mock_events import simulate_match
 
 SOURCE_ID = "mock"
 
@@ -60,7 +61,8 @@ TABLE_ORDER = (
     "medical_records", "development_goals", "assessments", "facilities", "facility_bookings", "calendar_events",
     "attendance", "tasks", "announcements", "guardians", "academy_registrations", "academy_fees", "payments",
     "budgets", "sponsors", "sponsorship_deals", "ad_inventory", "ad_bookings", "stadium_events",
-    "financial_transactions",
+    "financial_transactions", "match_events", "player_shifts", "academy_renewals", "payroll_runs", "payslips",
+    "message_threads", "message_participants", "messages", "decisions", "decision_outcomes",
 )
 
 
@@ -87,7 +89,8 @@ class Rows:
         return counts
 
 
-JSONB_COLUMNS = {"attributes", "tags", "findings", "clauses", "metric_weights", "external_load", "results", "deliverables"}
+JSONB_COLUMNS = {"attributes", "tags", "findings", "clauses", "metric_weights", "external_load", "results", "deliverables",
+                 "bonus_detail", "expected_outcome", "actual"}
 
 
 def _adapt(column: str, value: Any) -> Any:
@@ -243,8 +246,9 @@ def build_league(g: Gen, rows: Rows, sport_id: str) -> League:
         if s_index == 1:
             develop(g, players, d(season.starts_on))
         matches = fixtures(g, cfg, season, season_id, team_ids)
+        # Keep the stored rows, so scores set later from simulated play-by-play are written.
+        matches = [rows.add("matches", **match) for match in matches]
         for match in matches:
-            rows.add("matches", **match)
             rows.add("source_entity_ids", source_id=SOURCE_ID, entity_type="match",
                      external_id=f"{sport_id}:{match['id']}", entity_id=match["id"])
         if s_index == 1:
@@ -318,7 +322,9 @@ def fixtures(g: Gen, cfg: LeagueConfig, season, season_id: uuid.UUID, team_ids: 
     while len(rounds) < rounds_needed:
         for r in range(n - 1):
             pairs = [(order[i], order[n - 1 - i]) for i in range(n // 2)]
-            if (len(rounds) // (n - 1)) % 2 == 1:
+            # Alternate home and away round by round (the circle method's fixed team would
+            # otherwise always be at home), and reverse every fixture in the second cycle.
+            if (r % 2 == 1) != ((len(rounds) // (n - 1)) % 2 == 1):
                 pairs = [(b, a) for a, b in pairs]
             rounds.append(pairs)
             order = [order[0]] + [order[-1]] + order[1:-1]
@@ -475,6 +481,17 @@ def build_club(g: Gen, rows: Rows, lg: League) -> None:
                  team_id=lg.academy_team_id, season_label=str(fy), status="active",
                  registered_on=date(fy, 1, 10), consent_media=g.chance(0.8), consent_medical=True)
         monthly_fee = money(150 * scale)
+        offered_on = date(fy, 9, 1)
+        if offered_on <= as_of:
+            respond_by = offered_on + timedelta(days=30)
+            if respond_by < as_of:
+                status = g.rng.choices(("accepted", "declined", "lapsed"), [75, 15, 10])[0]
+            else:
+                status = g.rng.choices(("offered", "accepted"), [60, 40])[0]
+            rows.add("academy_renewals", id=g.id(), registration_id=reg_id, next_season_label=str(fy + 1),
+                     offered_on=offered_on, respond_by=respond_by, currency=cur, annual_fee=money(monthly_fee * 12),
+                     status=status, responded_on=None if status in ("offered", "lapsed") else offered_on + timedelta(days=g.rng.randint(2, 25)),
+                     notes=None)
         for month in range(1, as_of.month + 1):
             due = date(fy, month, 5)
             if due > as_of:
@@ -533,6 +550,9 @@ def build_club(g: Gen, rows: Rows, lg: League) -> None:
     by_team: dict[uuid.UUID, list[MockPlayer]] = {}
     for p in lg.players:
         by_team.setdefault(lg.team_ids[p.team_index], []).append(p)
+    # Detailed play-by-play for these matches; scores are set from the simulated events.
+    for match in club_matches:
+        simulate_match(g, rows, sport, match, by_team)
     all_clips = []
     report_clips: list[tuple[uuid.UUID, uuid.UUID]] = []
     scouted = {p.id for _, p in reports}
@@ -814,6 +834,72 @@ def build_club(g: Gen, rows: Rows, lg: League) -> None:
         rows.add("financial_transactions", id=g.id(), organisation_id=org, occurred_on=day, fiscal_year=fy,
                  category="broadcast_income", currency=cur, amount=money(wage_bill * 0.045), description="Central broadcast distribution",
                  counterparty=cfg.league, player_id=None, contract_id=None)
+
+    # Payroll: monthly runs with payslips for players and staff --------------------------
+    staff_rows = [r for r in rows.tables["staff_profiles"] if r["organisation_id"] == org]
+    for month in range(1, as_of.month + 1):
+        period_start = date(fy, month, 1)
+        period_end = (date(fy + (month == 12), month % 12 + 1, 1) - timedelta(days=1))
+        if period_end > as_of:
+            break
+        run_id = g.id()
+        rows.add("payroll_runs", id=run_id, organisation_id=org, period_start=period_start, period_end=period_end,
+                 currency=cur, status="paid", approved_by=staff["finance"][0], paid_on=date(fy, month, 25))
+        for p in own:
+            contract = contract_by_player[p.id]
+            bonus_rule = next((c for c in contract["clauses"] if c["type"] == "appearance_bonus"), None)
+            appearances = g.rng.randint(0, 4) if bonus_rule else 0
+            bonus = money(appearances * bonus_rule["amount"]) if bonus_rule else 0
+            rows.add("payslips", id=g.id(), payroll_run_id=run_id, player_id=p.id, user_id=None, contract_id=contract["id"],
+                     basic_pay=money(contract["annual_salary"] / 12), bonuses=bonus,
+                     bonus_detail=[{"type": "appearance_bonus", "count": appearances, "amount": bonus}] if bonus else [])
+        for sp in staff_rows:
+            rows.add("payslips", id=g.id(), payroll_run_id=run_id, player_id=None, user_id=sp["user_id"], contract_id=None,
+                     basic_pay=money(sp["annual_salary"] / 12), bonuses=0, bonus_detail=[])
+
+    # Messages between staff ------------------------------------------------------------
+    for subject, people, player, lines in (
+        ("Return-to-play plan", [medical, performance, coach], next(iter(unavailable)), (
+            "Scan results are back; plan attached to the medical record.",
+            "Can we build in a modified week before full training?",
+            "Agreed. I'll update the load plan.")),
+        ("Recruitment shortlist", [director, scout_ids[0], analyst], reports[0][1].id, (
+            "Clips from the last two matches are in the shortlist playlist.",
+            "Strong on the metrics we weight most; worth a live watch.",
+            "Booking travel for next weekend.")),
+        ("Monthly budget check", [staff["finance"][0], director, staff["executive"][0]], None, (
+            "Travel is running ahead of budget this quarter.",
+            "Mostly cup fixtures; should settle next month.")),
+    ):
+        thread_id = g.id()
+        rows.add("message_threads", id=thread_id, organisation_id=org, subject=subject, player_id=player,
+                 created_by=people[0], created_at=datetime.now(timezone.utc))
+        for user_id in people:
+            rows.add("message_participants", thread_id=thread_id, user_id=user_id, last_read_at=None)
+        for i, body in enumerate(lines):
+            rows.add("messages", id=g.id(), thread_id=thread_id, sender_id=people[i % len(people)], body=body,
+                     sent_at=at(as_of - timedelta(days=len(lines) - i), 9 + i))
+
+    # Decisions and reviewed outcomes ------------------------------------------------------
+    renewal_player = max(own, key=lambda p: p.quality)
+    for kind, title, player_id, days_ago, rationale, rating in (
+        ("renewal", "Extend contract of top performer", renewal_player.id, 300,
+         "Highest role performance score in the squad; contract expiring.", 4),
+        ("signing", f"Sign {signing.name}", signing.id, 120, "Top scouting rating for the role and within the wage budget.", None),
+        ("return_to_play", "Phased return after injury", next(iter(unavailable)), 10,
+         "Medical team cleared modified training; workload ramped over two weeks.", None),
+        ("commercial", "Renew principal sponsor", None, 200, "Committed income for three seasons at a higher annual value.", 5),
+    ):
+        decision_id = g.id()
+        decided_on = as_of - timedelta(days=days_ago)
+        rows.add("decisions", id=decision_id, organisation_id=org, kind=kind, title=title, player_id=player_id,
+                 recommendation_id=None, scenario_id=scenario_id if kind == "signing" else None, decided_on=decided_on,
+                 decided_by=director, rationale=rationale, expected_outcome={"review_after_days": 180},
+                 review_on=decided_on + timedelta(days=180), status="reviewed" if rating else "open")
+        if rating:
+            rows.add("decision_outcomes", id=g.id(), decision_id=decision_id, reviewed_on=decided_on + timedelta(days=180),
+                     reviewer_id=staff["executive"][0], rating=rating, actual={"summary": "Met expectations"},
+                     lessons="Keep reviewing similar decisions at six months.")
 
 
 def external_load(g: Gen, sport_id: str, role: str, kind: str, minutes: int) -> dict[str, Any]:

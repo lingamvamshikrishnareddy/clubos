@@ -37,6 +37,11 @@ describe("defineSport", () => {
       { ...valid, metrics: [{ ...valid.metrics[0]!, typical: [170, 80] as const }, valid.metrics[1]!] },
       /typical must be/,
     ],
+    [
+      "unit with an unknown role group",
+      { ...valid, units: [{ kind: "lineup", label: "L", groups: ["fielding"], size: 2, valueEvents: [], valueKind: "points" }] },
+      /unknown role group fielding/,
+    ],
   ])("rejects %s", (_, definition, message) => {
     expect(() => defineSport(definition as SportDefinition)).toThrow(message);
   });

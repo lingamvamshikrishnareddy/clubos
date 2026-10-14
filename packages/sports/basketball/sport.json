@@ -363,5 +363,22 @@
       "screen_assists",
       "true_shooting_pct"
     ]
-  }
+  },
+  "units": [
+    {
+      "kind": "lineup",
+      "label": "Five-man lineup",
+      "groups": [
+        "guard",
+        "forward",
+        "big"
+      ],
+      "size": 5,
+      "valueEvents": [
+        "shot",
+        "free_throw"
+      ],
+      "valueKind": "points"
+    }
+  ]
 }

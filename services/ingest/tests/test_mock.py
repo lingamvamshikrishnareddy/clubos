@@ -63,3 +63,23 @@ def test_loads_into_postgres_and_refuses_a_second_load():
             conn.rollback()
             conn.execute(f"truncate {', '.join(tables)} cascade")
             conn.commit()
+
+
+@pytest.mark.parametrize("sport_id", sorted(LEAGUES))
+def test_play_by_play_uses_the_sport_vocabulary_and_sets_scores(sport_id):
+    sport = load_sport(LEAGUES[sport_id].slug)
+    event_types = {e["key"] for e in sport["eventTypes"]}
+    vocab = {t["key"]: set(t["values"]) for t in sport["videoTags"]}
+    rows = generate([sport_id], seed=4, as_of=AS_OF)
+    events = rows.tables["match_events"]
+    assert events
+    for e in events:
+        assert e["event_type"] in event_types
+        for key, value in e["attributes"].items():
+            if key in vocab:
+                assert value in vocab[key], (key, value)
+    detailed = {e["match_id"] for e in events}
+    matches = {m["id"]: m for m in rows.tables["matches"] if m["id"] in detailed}
+    assert len(matches) == 3
+    for match in matches.values():
+        assert match["home_score"] != match["away_score"] or sport_id == "soccer"

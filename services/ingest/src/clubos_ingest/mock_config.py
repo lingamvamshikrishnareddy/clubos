@@ -47,8 +47,9 @@ LEAGUES: dict[str, LeagueConfig] = {
                "Oakham City", "Stonegate Albion", "Westmoor Wanderers", "Fairhaven FC", "Brackenford United"),
         seasons=(Season("2024/25", "2024-08-10", "2025-05-24"), Season("2025/26", "2025-08-09", "2026-05-23")),
         games_per_team=18,
+        # 4-2-3-1: eleven starters.
         roster={"goalkeeper": (3, 1), "centre_back": (4, 2), "full_back": (4, 2), "defensive_midfielder": (3, 1),
-                "central_midfielder": (3, 2), "attacking_midfielder": (2, 1), "winger": (4, 2), "striker": (3, 1)},
+                "central_midfielder": (3, 1), "attacking_midfielder": (2, 1), "winger": (4, 2), "striker": (3, 1)},
         exposure_per_game={"default": (86, 24)},
         score=("poisson", 1.4, 0), salary_range=(45_000, 3_500_000), fee_range=(50_000, 30_000_000),
         ticket_price=32, stadium_capacity=18_000,

@@ -378,5 +378,12 @@
       "xa",
       "pressures"
     ]
+  },
+  "formation": {
+    "tagGroup": "formation",
+    "outfieldPlayers": 10,
+    "excludeGroups": [
+      "goalkeeping"
+    ]
   }
 }

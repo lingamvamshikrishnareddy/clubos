@@ -38,6 +38,11 @@ Valuation basis: **annual salary**.
 | `goals_saved_above_expected` | Goals saved above expected | per exposure | higher | -0.6–0.6 | Expected goals against minus goals against. |
 | `high_danger_save_pct` | High-danger save % | rate | higher | 0.78–0.87 | Saves on high-danger shots. |
 
+## Units
+
+- **Forward line** (`forward_line`): 3 players from forward; xg for and against from shot events.
+- **Defence pair** (`defence_pair`): 2 players from defence; xg for and against from shot events.
+
 ## Event types
 
 `shot`, `goal`, `faceoff`, `zone_entry`, `zone_exit`, `hit`, `block`, `takeaway`, `giveaway`, `penalty`, `save`, `line_change`

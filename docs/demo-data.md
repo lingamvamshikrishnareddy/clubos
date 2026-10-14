@@ -22,7 +22,9 @@ with real data. All names of people, clubs, leagues and sponsors are invented.
 | Video | 3 match videos with 40 tagged events each, clips, playlists, tactical report |
 | Performance | 6 weeks of sessions with RPE and sport-specific external load; daily wellness; three players with a recent load spike; injuries and modified training |
 | Operations | Calendar, attendance, tasks, announcements, facilities and bookings |
-| Business | Budgets, monthly costs, sponsors and deals, advertising inventory and bookings, home-game and stadium-hire revenue, academy fees and payments |
+| Play-by-play | The club's last three games, simulated per sport: soccer passes and shots; basketball shots, free throws and stints; hockey shots and line shifts; cricket ball-by-ball; baseball pitch-by-pitch; American football plays. Match scores are set from these events. |
+| Business | Budgets, monthly costs, sponsors and deals, advertising inventory and bookings, home-game and stadium-hire revenue, academy fees, payments and renewals, monthly payroll with payslips |
+| Decisions and messages | Decisions (signing, renewal, return to play, commercial), some with reviewed outcomes; staff message threads |
 
 Model outputs are computed by `clubos-ml run` from this data; they are never generated directly.
 

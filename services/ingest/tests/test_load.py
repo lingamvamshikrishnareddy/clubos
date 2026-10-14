@@ -35,7 +35,7 @@ FILES = {
 }
 
 TABLES = (
-    "player_season_metric_values, player_season_stats, player_metric_values, player_match_appearances, player_identities, players, "
+    "match_events, player_season_metric_values, player_season_stats, player_metric_values, player_match_appearances, player_identities, players, "
     "matches, seasons, competitions, teams, source_entity_ids, ingestion_runs"
 )
 
@@ -102,6 +102,18 @@ def test_rolls_up_season_stats(conn):
         " order by i.external_id"
     ).fetchall()
     assert rows == [("10", "striker", 60, "minutes", 1, 2), ("8", "central_midfielder", 90, "minutes", 1, 0)]
+
+
+def test_stores_passes_and_shots_for_networks(conn):
+    load_competition_season(conn, 1, 2, fetch=FILES.__getitem__)
+    assert conn.execute(
+        "select event_type, count(*) from match_events group by 1 order by 1").fetchall() == [("pass", 3), ("shot", 2)]
+    # Only the completed pass with a known recipient forms a network edge.
+    edge = conn.execute(
+        "select pa.full_name, pr.full_name, n.passes from v_passing_network n"
+        " join players pa on pa.id = n.passer_id join players pr on pr.id = n.receiver_id").fetchall()
+    assert edge == [("Test Midfielder", "Test Striker", 1)]
+    assert scalar(conn, "select x from match_events where source_record_id = 'p1'") == 50
 
 
 def test_reloading_is_idempotent(conn):

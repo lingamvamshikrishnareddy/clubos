@@ -13,8 +13,9 @@ from collections.abc import Callable
 from typing import Any
 
 import psycopg
+from psycopg.types.json import Jsonb
 
-from .statsbomb import SOURCE_ID, aggregate_match, role_for_position
+from .statsbomb import SHOOTOUT_PERIOD, SOURCE_ID, aggregate_match, role_for_position
 
 BASE_URL = "https://raw.githubusercontent.com/statsbomb/open-data/master/data"
 
@@ -153,9 +154,11 @@ def _resolve_player(cur: psycopg.Cursor, source_player_id: str, name: str, role_
 def _load_match(cur: psycopg.Cursor, run_id: Any, season_id: Any, match: dict[str, Any], events: list[dict[str, Any]]) -> int:
     match_id, teams = _upsert_match(cur, season_id, match)
     rows = aggregate_match(match["match_id"], events)
+    player_ids: dict[str, Any] = {}
     for stats in rows:
         role_key = role_for_position(stats.position)
         player_id = _resolve_player(cur, stats.source_player_id, stats.player_name, role_key)
+        player_ids[stats.source_player_id] = player_id
         team_id = teams.get(stats.source_team_id) or _upsert_team(
             cur, stats.source_team_id, stats.team_name, None
         )
@@ -180,7 +183,55 @@ def _load_match(cur: psycopg.Cursor, run_id: Any, season_id: Any, match: dict[st
             " on conflict (appearance_id, metric_key) do update set value = excluded.value",
             [(appearance_id, key, value) for key, value in stats.metrics.items()],
         )
+    _store_events(cur, match_id, teams, player_ids, events)
     return len(rows)
+
+
+def _scale(point: list[float] | None) -> tuple[float | None, float | None]:
+    """StatsBomb 120 x 80 pitch -> 0–100 on both axes (already attacking towards x = 100)."""
+    if not point:
+        return None, None
+    return round(min(point[0] / 1.2, 100), 2), round(min(point[1] / 0.8, 100), 2)
+
+
+def _store_events(cur: psycopg.Cursor, match_id: Any, teams: dict[str, Any], player_ids: dict[str, Any],
+                  events: list[dict[str, Any]]) -> None:
+    """Passes and shots for passing networks, average positions, formations and shot maps.
+    Shoot-outs are excluded, as in the stats."""
+    rows = []
+    for sequence, event in enumerate(events, start=1):
+        kind = event["type"]["name"]
+        if kind not in ("Pass", "Shot") or event.get("period") == SHOOTOUT_PERIOD or "player" not in event:
+            continue
+        player_id = player_ids.get(str(event["player"]["id"]))
+        if player_id is None:
+            continue
+        x, y = _scale(event.get("location"))
+        if kind == "Pass":
+            p = event["pass"]
+            end_x, end_y = _scale(p.get("end_location"))
+            complete = "outcome" not in p
+            receiver = player_ids.get(str(p["recipient"]["id"])) if complete and p.get("recipient") else None
+            row = ("pass", "complete" if complete else "incomplete", receiver, end_x, end_y, None,
+                   {"height": p.get("height", {}).get("name"), "body_part": p.get("body_part", {}).get("name")})
+        else:
+            shot = event["shot"]
+            end_x, end_y = _scale(shot.get("end_location"))
+            outcome = "goal" if shot.get("outcome", {}).get("name") == "Goal" else (shot.get("outcome", {}).get("name") or "").lower()
+            row = ("shot", outcome, None, end_x, end_y, shot.get("statsbomb_xg"),
+                   {"shot_type": shot.get("type", {}).get("name"), "body_part": shot.get("body_part", {}).get("name")})
+        kind_key, outcome, related, end_x, end_y, value, attributes = row
+        rows.append((match_id, SOURCE_ID, event["id"], sequence, event.get("period", 1),
+                     event["minute"] * 60 + event.get("second", 0), teams.get(str(event["team"]["id"])), player_id,
+                     related, kind_key, outcome, x, y, end_x, end_y, value, Jsonb({k: v for k, v in attributes.items() if v})))
+    cur.executemany(
+        "insert into match_events (match_id, source_id, source_record_id, sequence, period, clock_seconds, team_id,"
+        " player_id, related_player_id, event_type, outcome, x, y, end_x, end_y, value, attributes)"
+        " values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        " on conflict (source_id, source_record_id) do update set outcome = excluded.outcome,"
+        " related_player_id = excluded.related_player_id, value = excluded.value",
+        rows,
+    )
 
 
 def _refresh_season_stats(cur: psycopg.Cursor, run_id: Any, season_id: Any) -> None:

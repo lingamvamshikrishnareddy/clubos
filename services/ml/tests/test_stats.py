@@ -61,3 +61,20 @@ def test_workload_indicator_flags_a_spike():
 def test_workload_indicator_without_history_has_no_ratio():
     ind = workload_indicator([0.0] * 28, [])
     assert ind.acwr is None and ind.monotony is None and ind.flags == []
+
+
+def test_time_slices_split_overlapping_shifts():
+    from clubos_ml.analytics import time_slices
+
+    slices = time_slices([("a", 0, 60), ("b", 0, 30), ("c", 30, 60)])
+    assert slices == [(0, 30, frozenset({"a", "b"})), (30, 60, frozenset({"a", "c"}))]
+
+
+def test_detect_lines_picks_the_formation_with_the_tightest_lines():
+    from clubos_ml.analytics import detect_lines
+
+    xs = [22, 23, 31, 33, 40, 51, 65, 71, 73, 84]  # back four, two holding, three behind one striker
+    formation, confidence = detect_lines(xs, ["4-3-3", "4-2-3-1", "4-4-2", "3-5-2"])
+    assert formation == "4-2-3-1"
+    assert confidence > 0.9
+    assert detect_lines([10, 20], ["4-3-3"]) == ("unknown", 0.0)

@@ -21,7 +21,7 @@ Every feature answers one of four questions: *Who should we sign? Where are we l
 performance? How do we improve availability and development? How do we allocate our budget?*
 
 Read more: [vision](docs/vision.md) · [roadmap](docs/roadmap.md) · [architecture decisions](docs/adr) ·
-[models](docs/models.md) · [demo data](docs/demo-data.md) · [sport reference](docs/sports/reference)
+[models](docs/models.md) · [demo data](docs/demo-data.md) · [access control](docs/adr/0004-row-level-security.md) · [sport reference](docs/sports/reference)
 
 ## Repository layout
 
@@ -64,6 +64,14 @@ order by r.fit_score desc limit 10;
 select * from v_budget_vs_actual;
 select * from v_wage_bill;
 select * from v_squad_value;
+
+-- Executive planning: full-year forecast vs budget, and the three-year plan
+select category, basis, actual_to_date, projected_full_year, budget from financial_forecasts;
+select * from v_club_performance_roi;
+
+-- Sport analytics from play-by-play
+select * from v_cricket_matchups order by balls desc limit 10;
+select * from formation_detections;
 
 -- Availability: workload indicators flagged for staff review
 select p.full_name, w.acwr, w.monotony, w.wellness_score, w.flags

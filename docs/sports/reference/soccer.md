@@ -40,6 +40,10 @@ Valuation basis: **transfer fee**.
 | `interceptions` | Interceptions | per exposure | higher | 0.2–2 | Successful interceptions of opponent passes. |
 | `ball_recoveries` | Ball recoveries | per exposure | higher | 3–10 | Loose balls recovered by the player. |
 
+## Formation detection
+
+From the average positions of 10 outfield players (excluding goalkeeping), matched to the `formation` tag vocabulary.
+
 ## Event types
 
 `pass`, `carry`, `dribble`, `shot`, `pressure`, `duel`, `interception`, `ball_recovery`, `clearance`, `block`, `foul_committed`, `substitution`

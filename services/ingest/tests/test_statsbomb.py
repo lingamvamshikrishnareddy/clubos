@@ -27,7 +27,7 @@ EVENTS = [
     ev("xi", 0, "Starting XI", tactics={"lineup": [{"player": STRIKER}, {"player": MIDFIELDER}]}),
     # Completed progressive pass that assists a shot.
     ev("p1", 10, "Pass", MIDFIELDER, location=[60, 40], **{
-        "pass": {"end_location": [100, 40], "shot_assist": True, "assisted_shot_id": "s1"}
+        "pass": {"end_location": [100, 40], "shot_assist": True, "assisted_shot_id": "s1", "recipient": STRIKER}
     }),
     ev("s1", 10, "Shot", STRIKER, shot={"statsbomb_xg": 0.3, "outcome": {"name": "Goal"}}),
     # Incomplete pass: attempted, not completed, not progressive.

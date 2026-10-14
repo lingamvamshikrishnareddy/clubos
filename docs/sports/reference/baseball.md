@@ -59,6 +59,6 @@ Valuation basis: **annual salary**.
 
 - **Pitch type** (`pitch_type`): four-seam fastball, sinker, cutter, slider, sweeper, curveball, changeup, splitter
 - **Pitch location** (`location`): up and in, up and away, down and in, down and away, middle, chase
-- **Count** (`count`): 0-0, ahead, behind, two strikes, full count
+- **Count** (`count`): 0-0, ahead, even, behind, two strikes, full count
 - **Batted ball** (`batted_ball`): ground ball, line drive, fly ball, pop-up, barrel
 - **Defensive alignment** (`shift`): standard, infield in, no-doubles, strategic positioning

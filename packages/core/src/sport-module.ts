@@ -77,6 +77,30 @@ export interface TagGroup {
 }
 
 /**
+ * A combination of players analysed while on the field together, e.g. a basketball
+ * five-man lineup or an ice hockey forward line. Built from player shifts.
+ */
+export interface UnitDefinition {
+  kind: "lineup" | "forward_line" | "defence_pair";
+  label: string;
+  /** Role groups whose players make up the unit. */
+  groups: readonly string[];
+  size: number;
+  /** Events whose value counts for and against the unit (points, xG). */
+  valueEvents: readonly string[];
+  valueKind: "points" | "goals" | "xg";
+}
+
+/** Formation detection from players' average positions (sports with fixed shapes). */
+export interface FormationDefinition {
+  /** videoTags group holding the formation vocabulary, e.g. "4-3-3". */
+  tagGroup: string;
+  outfieldPlayers: number;
+  /** Role groups left out of the shape, e.g. goalkeeping. */
+  excludeGroups: readonly string[];
+}
+
+/**
  * What a player's market value means in this sport: a transfer fee (soccer) or the annual
  * salary the market pays (leagues with drafts, trades, free agency or auctions).
  */
@@ -93,6 +117,8 @@ export interface SportModule {
   roles: readonly Role[];
   eventTypes: readonly EventType[];
   metrics: readonly MetricDefinition[];
+  units?: readonly UnitDefinition[];
+  formation?: FormationDefinition;
   /** Vocabulary for tagging video in this sport (Stage 2). */
   videoTags: readonly TagGroup[];
   /** Metrics shown by default when comparing players in a role. */

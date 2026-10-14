@@ -39,6 +39,10 @@ Valuation basis: **annual salary**.
 | `contested_shots` | Contested shots | per exposure | higher | 3–14 | Opponent shots contested. |
 | `screen_assists` | Screen assists | per exposure | higher | 0.2–5 | Screens leading directly to a made shot. |
 
+## Units
+
+- **Five-man lineup** (`lineup`): 5 players from guard, forward, big; points for and against from shot, free_throw events.
+
 ## Event types
 
 `shot`, `free_throw`, `rebound`, `assist`, `turnover`, `steal`, `block`, `foul`, `screen`, `substitution`

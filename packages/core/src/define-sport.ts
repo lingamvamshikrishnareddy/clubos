@@ -6,6 +6,8 @@ import type {
   SportId,
   SportModule,
   TagGroup,
+  UnitDefinition,
+  FormationDefinition,
   ValuationBasis,
 } from "./sport-module.js";
 
@@ -23,6 +25,8 @@ export interface SportDefinition {
   eventTypes: EventType[];
   videoTags: TagGroup[];
   metrics: MetricDefinition[];
+  units?: UnitDefinition[];
+  formation?: FormationDefinition;
   comparisonMetrics: Record<string, string[]>;
 }
 
@@ -47,6 +51,17 @@ export function defineSport(definition: SportDefinition): SportModule {
   }
   for (const role of Object.keys(definition.roleExposure ?? {})) {
     if (!roleKeys.has(role)) problems.push(`exposure for unknown role ${role}`);
+  }
+  const groups = new Set(definition.roles.map((r) => r.group));
+  const eventKeys = new Set(definition.eventTypes.map((e) => e.key));
+  const tagGroups = new Set(definition.videoTags.map((t) => t.key));
+  for (const unit of definition.units ?? []) {
+    for (const g of unit.groups) if (!groups.has(g)) problems.push(`unit ${unit.kind}: unknown role group ${g}`);
+    for (const e of unit.valueEvents) if (!eventKeys.has(e)) problems.push(`unit ${unit.kind}: unknown event ${e}`);
+  }
+  if (definition.formation) {
+    if (!tagGroups.has(definition.formation.tagGroup)) problems.push(`formation: unknown tag group ${definition.formation.tagGroup}`);
+    for (const g of definition.formation.excludeGroups) if (!groups.has(g)) problems.push(`formation: unknown role group ${g}`);
   }
   if (problems.length) throw new Error(`Invalid sport definition ${definition.id}: ${problems.join("; ")}`);
 

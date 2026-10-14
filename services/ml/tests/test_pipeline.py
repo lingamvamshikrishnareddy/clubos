@@ -24,7 +24,7 @@ def conn():
             "select tablename from pg_tables where schemaname = 'public' and tablename not in ('sports', 'data_sources')")]
         connection.execute(f"truncate {', '.join(tables)} cascade")
         connection.commit()
-        load_mock_data(connection, ["soccer", "ice_hockey"], seed=5, as_of=AS_OF)
+        load_mock_data(connection, ["soccer", "ice_hockey", "basketball"], seed=5, as_of=AS_OF)
         connection.summary = run_all(connection, AS_OF)
         yield connection
         connection.rollback()
@@ -63,3 +63,38 @@ def test_forecasts_are_bounded(conn):
 
 def test_workload_indicators_flag_the_overloaded_players(conn):
     assert one(conn, "select count(*) from workload_indicators where 'load_spike' = any(flags)") > 0
+
+
+def test_unit_combinations_cover_lineups_lines_and_pairs(conn):
+    kinds = dict(conn.execute("select unit_kind, min(cardinality(player_ids)) from unit_stats group by 1").fetchall())
+    assert kinds == {"lineup": 5, "forward_line": 3, "defence_pair": 2}
+    # Lineup points for and against add up to the points scored in the simulated games.
+    lineup_points = one(conn, "select sum(value_for) from unit_stats where unit_kind = 'lineup'")
+    event_points = one(conn, "select sum(e.value) from match_events e join players p on p.id = e.player_id"
+                             " where p.sport_id = 'basketball' and e.event_type in ('shot', 'free_throw') and e.period <= 4")
+    assert lineup_points == event_points
+
+
+def test_formations_detected_from_the_demo_shape(conn):
+    assert one(conn, "select count(*) from formation_detections where formation <> '4-2-3-1'") == 0
+
+
+def test_financial_forecast_uses_contracts_for_wages(conn):
+    row = conn.execute(
+        "select basis, actual_to_date + projected_remaining - projected_full_year from financial_forecasts"
+        " where category = 'player_wages' limit 1").fetchone()
+    assert row[0] == "contracted" and abs(row[1]) < 1
+    plan_years = one(conn, "select count(distinct fiscal_year) from financial_plan_lines")
+    assert plan_years == 3
+    # Costs are negative in the plan, income positive.
+    assert one(conn, "select count(*) from financial_plan_lines where category = 'player_wages' and amount >= 0") == 0
+
+
+def test_performance_roi_views(conn):
+    assert one(conn, "select count(*) from v_club_performance_roi") == 6  # three clubs, two seasons
+    assert one(conn, "select count(*) from v_player_performance_roi where performance_score is not null") > 0
+
+
+def test_player_reports_cite_their_sources(conn):
+    sections = one(conn, "select sections from player_reports limit 1")
+    assert sections and all(item.get("source") for section in sections for item in section["items"])

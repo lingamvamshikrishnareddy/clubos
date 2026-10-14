@@ -71,6 +71,8 @@ jobs:
         run: for f in db/migrations/*.sql; do psql -v ON_ERROR_STOP=1 -q -f "$f"; done
       - name: Schema smoke test
         run: psql -v ON_ERROR_STOP=1 -q -f db/tests/smoke.sql
+      - name: Row-level security test
+        run: psql -v ON_ERROR_STOP=1 -q -f db/tests/rls.sql
       - uses: astral-sh/setup-uv@v5
       - name: Full demo build (fictional data for all six sports and every model)
         run: |

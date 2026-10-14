@@ -31,6 +31,16 @@ def render(sport: dict) -> str:
         typical = "–".join(str(v) for v in m.get("typical", [])) or ""
         better = "higher" if m["higherIsBetter"] else "lower"
         lines.append(f"| `{m['key']}` | {m['label']} | {m['normalisation'].replace('_', ' ')} | {better} | {typical} | {m['description']} |")
+    if sport.get("units"):
+        lines += ["", "## Units", ""]
+        for u in sport["units"]:
+            lines.append(f"- **{u['label']}** (`{u['kind']}`): {u['size']} players from {', '.join(u['groups'])}; "
+                         f"{u['valueKind']} for and against from {', '.join(u['valueEvents'])} events.")
+    if sport.get("formation"):
+        f = sport["formation"]
+        lines += ["", "## Formation detection", "",
+                  f"From the average positions of {f['outfieldPlayers']} outfield players (excluding {', '.join(f['excludeGroups'])}), "
+                  f"matched to the `{f['tagGroup']}` tag vocabulary."]
     lines += ["", "## Event types", "", ", ".join(f"`{e['key']}`" for e in sport["eventTypes"]), "", "## Video tags", ""]
     for group in sport["videoTags"]:
         lines.append(f"- **{group['label']}** (`{group['key']}`): {', '.join(group['values'])}")

@@ -383,16 +383,26 @@ def run_workload(conn: psycopg.Connection, as_of: date | None = None) -> int:
 
 
 def run_all(conn: psycopg.Connection, as_of: date | None = None) -> dict[str, int]:
+    from .analytics import run_formations, run_units
+    from .operations import run_financial_forecasts, run_performance_scores, run_player_reports
+
     today = as_of or date.today()
     summary: dict[str, int] = defaultdict(int)
+    sports = {}
     for (sport_id,) in conn.execute("select distinct sport_id from competitions order by 1").fetchall():
-        sport = load_sport(sport_id)
+        sport = sports[sport_id] = load_sport(sport_id)
         samples = latest_samples(conn, sport)
+        summary["performance_scores"] += run_performance_scores(conn, sport, samples)
         valuations = run_valuation(conn, sport, samples, today)
         summary["valuations"] += len(valuations)
         summary["forecasts"] += run_forecasts(conn, sport, samples)
         summary["recommendations"] += run_recommendations(conn, sport, samples, valuations)
+        summary["unit_stats"] += run_units(conn, sport)
+        summary["formations"] += run_formations(conn, sport)
         conn.commit()
     summary["workload_indicators"] = run_workload(conn, as_of)
+    summary["financial_forecast_rows"] = run_financial_forecasts(conn, today)
+    conn.commit()
+    summary["player_reports"] = run_player_reports(conn, today, sports)
     conn.commit()
     return dict(summary)
