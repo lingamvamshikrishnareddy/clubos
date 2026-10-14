@@ -1,6 +1,6 @@
 # Soccer module
 
-Code: `packages/sports/soccer`. Metric definitions: `packages/sports/soccer/metrics.json`
+Code: `packages/sports/soccer`. Definition (roles, metrics, video tags): `packages/sports/soccer/sport.json`
 (shared with `services/ingest`).
 
 ## Exposure

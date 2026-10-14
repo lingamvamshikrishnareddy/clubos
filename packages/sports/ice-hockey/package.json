@@ -1,0 +1,17 @@
+{
+  "name": "@clubos/sport-ice-hockey",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./sport.json": "./sport.json"
+  },
+  "scripts": {
+    "typecheck": "tsc -p .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@clubos/core": "workspace:*"
+  }
+}

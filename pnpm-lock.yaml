@@ -17,6 +17,36 @@ importers:
 
   packages/core: {}
 
+  packages/sports/american-football:
+    dependencies:
+      '@clubos/core':
+        specifier: workspace:*
+        version: link:../../core
+
+  packages/sports/baseball:
+    dependencies:
+      '@clubos/core':
+        specifier: workspace:*
+        version: link:../../core
+
+  packages/sports/basketball:
+    dependencies:
+      '@clubos/core':
+        specifier: workspace:*
+        version: link:../../core
+
+  packages/sports/cricket:
+    dependencies:
+      '@clubos/core':
+        specifier: workspace:*
+        version: link:../../core
+
+  packages/sports/ice-hockey:
+    dependencies:
+      '@clubos/core':
+        specifier: workspace:*
+        version: link:../../core
+
   packages/sports/soccer:
     dependencies:
       '@clubos/core':

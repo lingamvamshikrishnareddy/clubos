@@ -4,8 +4,14 @@ import { compareInRole, normalise, percentileRank, type SportModule } from "../s
 const sport: SportModule = {
   id: "soccer",
   name: "Test sport",
-  exposure: { key: "minutes", per: 90, minimumForComparison: 450 },
-  roles: [{ key: "striker", label: "Striker", group: "attack" }],
+  valuationBasis: "transfer_fee",
+  exposure: { key: "minutes", label: "Minutes", per: 90, minimumForComparison: 450 },
+  roleExposure: { keeper: { key: "shots_faced", label: "Shots faced", per: 10, minimumForComparison: 50 } },
+  videoTags: [],
+  roles: [
+    { key: "striker", label: "Striker", group: "attack" },
+    { key: "keeper", label: "Keeper", group: "keeping" },
+  ],
   eventTypes: [],
   metrics: [
     { key: "goals", label: "Goals", description: "", unit: "count", normalisation: "per_exposure", higherIsBetter: true },
@@ -49,5 +55,15 @@ describe("compareInRole", () => {
   it("does not treat missing values as zero", () => {
     const b = result[1]!;
     expect(b.metrics[1]).toEqual({ metricKey: "turnovers", value: null, percentile: null, poolSize: 1 });
+  });
+});
+
+describe("role-specific exposure", () => {
+  it("uses the role's own exposure unit for scaling and the low-sample threshold", () => {
+    const [keeper] = compareInRole(sport, "keeper", [
+      { playerId: "k", roleKey: "keeper", exposure: 60, totals: { goals: 3, turnovers: 0 } },
+    ]);
+    expect(keeper!.lowSample).toBe(false);
+    expect(keeper!.metrics[0]!.value).toBe(0.5);
   });
 });

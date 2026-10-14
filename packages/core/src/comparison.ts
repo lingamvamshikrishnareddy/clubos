@@ -1,8 +1,10 @@
-import type { MetricDefinition, SportModule } from "./sport-module.js";
+import { exposureFor, type MetricDefinition, type SportModule } from "./sport-module.js";
 
 /**
  * A player's aggregated output over some period, as stored by ingestion.
- * `null` means the source did not measure the metric. It is never treated as zero.
+ * `totals` holds sums for per-exposure and total metrics, and the already-aggregated
+ * value for rate metrics (e.g. season strike rate). `null` means the source did not
+ * measure the metric. It is never treated as zero.
  */
 export interface PlayerSample {
   playerId: string;
@@ -71,7 +73,7 @@ export function compareInRole(
   const metricsByKey = new Map(sport.metrics.map((m) => [m.key, m]));
   const metricKeys = sport.comparisonMetrics(roleKey).filter((k) => metricsByKey.has(k));
   const inRole = samples.filter((s) => s.roleKey === roleKey);
-  const { per, minimumForComparison } = sport.exposure;
+  const { per, minimumForComparison } = exposureFor(sport, roleKey);
 
   const valueOf = (s: PlayerSample, metric: MetricDefinition) =>
     normalise(metric, s.totals[metric.key], s.exposure, per);

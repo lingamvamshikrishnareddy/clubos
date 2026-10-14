@@ -1,0 +1,566 @@
+{
+  "id": "american_football",
+  "name": "American football",
+  "valuationBasis": "annual_salary",
+  "exposure": {
+    "key": "snaps",
+    "label": "Snaps",
+    "per": 60,
+    "minimumForComparison": 150
+  },
+  "roleExposure": {
+    "kicker": {
+      "key": "kicks",
+      "label": "Kicks",
+      "per": 1,
+      "minimumForComparison": 15
+    },
+    "punter": {
+      "key": "punts",
+      "label": "Punts",
+      "per": 1,
+      "minimumForComparison": 15
+    }
+  },
+  "roles": [
+    {
+      "key": "quarterback",
+      "label": "Quarterback",
+      "group": "offence"
+    },
+    {
+      "key": "running_back",
+      "label": "Running back",
+      "group": "offence"
+    },
+    {
+      "key": "wide_receiver",
+      "label": "Wide receiver",
+      "group": "offence"
+    },
+    {
+      "key": "tight_end",
+      "label": "Tight end",
+      "group": "offence"
+    },
+    {
+      "key": "offensive_line",
+      "label": "Offensive lineman",
+      "group": "offence"
+    },
+    {
+      "key": "defensive_line",
+      "label": "Defensive lineman",
+      "group": "defence"
+    },
+    {
+      "key": "edge_rusher",
+      "label": "Edge rusher",
+      "group": "defence"
+    },
+    {
+      "key": "linebacker",
+      "label": "Linebacker",
+      "group": "defence"
+    },
+    {
+      "key": "cornerback",
+      "label": "Cornerback",
+      "group": "defence"
+    },
+    {
+      "key": "safety",
+      "label": "Safety",
+      "group": "defence"
+    },
+    {
+      "key": "kicker",
+      "label": "Kicker",
+      "group": "special teams"
+    },
+    {
+      "key": "punter",
+      "label": "Punter",
+      "group": "special teams"
+    }
+  ],
+  "eventTypes": [
+    {
+      "key": "pass",
+      "label": "Pass"
+    },
+    {
+      "key": "rush",
+      "label": "Rush"
+    },
+    {
+      "key": "reception",
+      "label": "Reception"
+    },
+    {
+      "key": "sack",
+      "label": "Sack"
+    },
+    {
+      "key": "pressure",
+      "label": "Pressure"
+    },
+    {
+      "key": "tackle",
+      "label": "Tackle"
+    },
+    {
+      "key": "interception",
+      "label": "Interception"
+    },
+    {
+      "key": "fumble",
+      "label": "Fumble"
+    },
+    {
+      "key": "penalty",
+      "label": "Penalty"
+    },
+    {
+      "key": "field_goal",
+      "label": "Field goal"
+    },
+    {
+      "key": "punt",
+      "label": "Punt"
+    },
+    {
+      "key": "kickoff",
+      "label": "Kickoff"
+    }
+  ],
+  "videoTags": [
+    {
+      "key": "offensive_formation",
+      "label": "Offensive formation",
+      "values": [
+        "shotgun",
+        "singleback",
+        "I-formation",
+        "pistol",
+        "empty",
+        "under centre"
+      ]
+    },
+    {
+      "key": "personnel",
+      "label": "Personnel",
+      "values": [
+        "11",
+        "12",
+        "13",
+        "21",
+        "22",
+        "10"
+      ]
+    },
+    {
+      "key": "coverage",
+      "label": "Coverage",
+      "values": [
+        "cover 0",
+        "cover 1",
+        "cover 2",
+        "cover 3",
+        "cover 4",
+        "cover 6",
+        "man",
+        "zone"
+      ]
+    },
+    {
+      "key": "route",
+      "label": "Route",
+      "values": [
+        "slant",
+        "out",
+        "in",
+        "go",
+        "post",
+        "corner",
+        "curl",
+        "flat",
+        "screen",
+        "wheel"
+      ]
+    },
+    {
+      "key": "pressure",
+      "label": "Pressure",
+      "values": [
+        "blitz",
+        "simulated pressure",
+        "four-man rush",
+        "stunt"
+      ]
+    },
+    {
+      "key": "down_distance",
+      "label": "Down and distance",
+      "values": [
+        "1st & 10",
+        "2nd & long",
+        "2nd & short",
+        "3rd & long",
+        "3rd & short",
+        "4th down",
+        "red zone",
+        "two-minute"
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "key": "passing_yards",
+      "label": "Passing yards",
+      "description": "Yards gained on completed passes.",
+      "unit": "yards",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        80,
+        320
+      ]
+    },
+    {
+      "key": "pass_attempts",
+      "label": "Pass attempts",
+      "description": "Forward passes thrown.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        15,
+        45
+      ]
+    },
+    {
+      "key": "completion_pct",
+      "label": "Completion %",
+      "description": "Completed passes / attempts.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.55,
+        0.72
+      ]
+    },
+    {
+      "key": "passing_tds",
+      "label": "Passing touchdowns",
+      "description": "Touchdown passes thrown.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.5,
+        3
+      ]
+    },
+    {
+      "key": "interceptions_thrown",
+      "label": "Interceptions thrown",
+      "description": "Passes intercepted by the defence.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": false,
+      "typical": [
+        0.2,
+        1.5
+      ]
+    },
+    {
+      "key": "epa_per_play",
+      "label": "EPA per play",
+      "description": "Expected points added per play involved in.",
+      "unit": "points",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        -0.15,
+        0.3
+      ]
+    },
+    {
+      "key": "rushing_yards",
+      "label": "Rushing yards",
+      "description": "Yards gained on rushes.",
+      "unit": "yards",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        10,
+        120
+      ]
+    },
+    {
+      "key": "yards_per_carry",
+      "label": "Yards per carry",
+      "description": "Rushing yards / rushes.",
+      "unit": "yards",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        3.2,
+        5.6
+      ]
+    },
+    {
+      "key": "targets",
+      "label": "Targets",
+      "description": "Passes thrown towards the player.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        2,
+        11
+      ]
+    },
+    {
+      "key": "receptions",
+      "label": "Receptions",
+      "description": "Passes caught.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        1,
+        8
+      ]
+    },
+    {
+      "key": "receiving_yards",
+      "label": "Receiving yards",
+      "description": "Yards gained on receptions.",
+      "unit": "yards",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        15,
+        110
+      ]
+    },
+    {
+      "key": "yards_after_catch",
+      "label": "Yards after catch",
+      "description": "Receiving yards gained after the catch.",
+      "unit": "yards",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        5,
+        45
+      ]
+    },
+    {
+      "key": "drops",
+      "label": "Drops",
+      "description": "Catchable passes dropped.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": false,
+      "typical": [
+        0,
+        0.8
+      ]
+    },
+    {
+      "key": "pass_block_win_rate",
+      "label": "Pass block win rate",
+      "description": "Share of pass-block snaps sustained for 2.5 s.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.82,
+        0.95
+      ]
+    },
+    {
+      "key": "run_block_win_rate",
+      "label": "Run block win rate",
+      "description": "Share of run-block snaps won.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.65,
+        0.78
+      ]
+    },
+    {
+      "key": "pressures",
+      "label": "Pressures",
+      "description": "Hurries, hits and sacks on the quarterback.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.5,
+        6
+      ]
+    },
+    {
+      "key": "sacks",
+      "label": "Sacks",
+      "description": "Quarterback sacks (half sacks count 0.5).",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0,
+        1.2
+      ]
+    },
+    {
+      "key": "tackles",
+      "label": "Tackles",
+      "description": "Solo and assisted tackles.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        1,
+        10
+      ]
+    },
+    {
+      "key": "missed_tackle_pct",
+      "label": "Missed tackle %",
+      "description": "Missed tackles / tackle attempts.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": false,
+      "typical": [
+        0.05,
+        0.2
+      ]
+    },
+    {
+      "key": "passes_defended",
+      "label": "Passes defended",
+      "description": "Pass break-ups and interceptions.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.1,
+        1.5
+      ]
+    },
+    {
+      "key": "yards_per_coverage_snap",
+      "label": "Yards allowed per coverage snap",
+      "description": "Receiving yards allowed in coverage / coverage snaps.",
+      "unit": "yards",
+      "normalisation": "rate",
+      "higherIsBetter": false,
+      "typical": [
+        0.6,
+        1.6
+      ]
+    },
+    {
+      "key": "field_goal_pct",
+      "label": "Field goal %",
+      "description": "Field goals made / attempted.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.75,
+        0.94
+      ]
+    },
+    {
+      "key": "net_punt_avg",
+      "label": "Net punting average",
+      "description": "Net yards per punt after returns.",
+      "unit": "yards",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        38,
+        45
+      ]
+    }
+  ],
+  "comparisonMetrics": {
+    "quarterback": [
+      "epa_per_play",
+      "completion_pct",
+      "passing_yards",
+      "passing_tds",
+      "interceptions_thrown"
+    ],
+    "running_back": [
+      "rushing_yards",
+      "yards_per_carry",
+      "receptions",
+      "yards_after_catch",
+      "epa_per_play"
+    ],
+    "wide_receiver": [
+      "receiving_yards",
+      "targets",
+      "receptions",
+      "yards_after_catch",
+      "drops"
+    ],
+    "tight_end": [
+      "receiving_yards",
+      "receptions",
+      "pass_block_win_rate",
+      "run_block_win_rate",
+      "drops"
+    ],
+    "offensive_line": [
+      "pass_block_win_rate",
+      "run_block_win_rate"
+    ],
+    "defensive_line": [
+      "pressures",
+      "sacks",
+      "tackles",
+      "missed_tackle_pct"
+    ],
+    "edge_rusher": [
+      "pressures",
+      "sacks",
+      "tackles",
+      "missed_tackle_pct"
+    ],
+    "linebacker": [
+      "tackles",
+      "missed_tackle_pct",
+      "pressures",
+      "passes_defended",
+      "yards_per_coverage_snap"
+    ],
+    "cornerback": [
+      "yards_per_coverage_snap",
+      "passes_defended",
+      "tackles",
+      "missed_tackle_pct"
+    ],
+    "safety": [
+      "yards_per_coverage_snap",
+      "passes_defended",
+      "tackles",
+      "missed_tackle_pct"
+    ],
+    "kicker": [
+      "field_goal_pct"
+    ],
+    "punter": [
+      "net_punt_avg"
+    ]
+  }
+}

@@ -5,7 +5,7 @@ import pytest
 
 from clubos_ingest.statsbomb import METRIC_KEYS, POSITION_ROLES, aggregate_match, is_progressive, role_for_position
 
-SOCCER = Path(__file__).parents[3] / "packages/sports/soccer"
+SOCCER = json.loads((Path(__file__).parents[3] / "packages/sports/soccer/sport.json").read_text())
 
 HOME = {"id": 1, "name": "Riverside FC"}
 STRIKER = {"id": 10, "name": "Test Striker"}
@@ -61,7 +61,7 @@ def stats():
 
 
 def test_metric_keys_match_shared_definitions():
-    shared = {m["key"] for m in json.loads((SOCCER / "metrics.json").read_text())}
+    shared = {m["key"] for m in SOCCER["metrics"]}
     assert set(METRIC_KEYS) == shared
 
 
@@ -108,7 +108,7 @@ def test_is_progressive_requires_start_location():
 
 
 def test_position_roles_use_shared_role_keys():
-    roles = {r["key"] for r in json.loads((SOCCER / "roles.json").read_text())}
+    roles = {r["key"] for r in SOCCER["roles"]}
     assert set(POSITION_ROLES.values()) <= roles
 
 

@@ -4,7 +4,7 @@ Data source: https://github.com/statsbomb/open-data. Its licence requires attrib
 and does not allow redistribution as our own data, so raw files are never committed.
 They are fetched at ingest time (see cli.py).
 
-Metric keys must match packages/sports/soccer/metrics.json.
+Metric keys must match packages/sports/soccer/sport.json.
 """
 
 from __future__ import annotations
@@ -185,7 +185,7 @@ def aggregate_match(
     return list(players.values())
 
 
-# StatsBomb position name -> soccer role key (packages/sports/soccer/roles.json).
+# StatsBomb position name -> soccer role key (packages/sports/soccer/sport.json).
 POSITION_ROLES = {
     "Goalkeeper": "goalkeeper",
     "Center Back": "centre_back",

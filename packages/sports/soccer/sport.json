@@ -1,0 +1,382 @@
+{
+  "id": "soccer",
+  "name": "Association football",
+  "valuationBasis": "transfer_fee",
+  "exposure": {
+    "key": "minutes",
+    "label": "Minutes",
+    "per": 90,
+    "minimumForComparison": 450
+  },
+  "roles": [
+    {
+      "key": "goalkeeper",
+      "label": "Goalkeeper",
+      "group": "goalkeeping"
+    },
+    {
+      "key": "centre_back",
+      "label": "Centre-back",
+      "group": "defence"
+    },
+    {
+      "key": "full_back",
+      "label": "Full-back / wing-back",
+      "group": "defence"
+    },
+    {
+      "key": "defensive_midfielder",
+      "label": "Defensive midfielder",
+      "group": "midfield"
+    },
+    {
+      "key": "central_midfielder",
+      "label": "Central midfielder",
+      "group": "midfield"
+    },
+    {
+      "key": "attacking_midfielder",
+      "label": "Attacking midfielder",
+      "group": "midfield"
+    },
+    {
+      "key": "winger",
+      "label": "Winger",
+      "group": "attack"
+    },
+    {
+      "key": "striker",
+      "label": "Striker",
+      "group": "attack"
+    }
+  ],
+  "eventTypes": [
+    {
+      "key": "pass",
+      "label": "Pass"
+    },
+    {
+      "key": "carry",
+      "label": "Carry"
+    },
+    {
+      "key": "dribble",
+      "label": "Dribble"
+    },
+    {
+      "key": "shot",
+      "label": "Shot"
+    },
+    {
+      "key": "pressure",
+      "label": "Pressure"
+    },
+    {
+      "key": "duel",
+      "label": "Duel"
+    },
+    {
+      "key": "interception",
+      "label": "Interception"
+    },
+    {
+      "key": "ball_recovery",
+      "label": "Ball recovery"
+    },
+    {
+      "key": "clearance",
+      "label": "Clearance"
+    },
+    {
+      "key": "block",
+      "label": "Block"
+    },
+    {
+      "key": "foul_committed",
+      "label": "Foul committed"
+    },
+    {
+      "key": "substitution",
+      "label": "Substitution"
+    }
+  ],
+  "videoTags": [
+    {
+      "key": "phase",
+      "label": "Phase of play",
+      "values": [
+        "build-up",
+        "progression",
+        "final third",
+        "counter-attack",
+        "counter-press",
+        "high press",
+        "mid block",
+        "low block",
+        "set piece"
+      ]
+    },
+    {
+      "key": "formation",
+      "label": "Formation",
+      "values": [
+        "4-3-3",
+        "4-2-3-1",
+        "4-4-2",
+        "3-5-2",
+        "3-4-3",
+        "5-3-2"
+      ]
+    },
+    {
+      "key": "set_piece",
+      "label": "Set piece",
+      "values": [
+        "corner",
+        "direct free kick",
+        "indirect free kick",
+        "throw-in",
+        "penalty",
+        "goal kick"
+      ]
+    },
+    {
+      "key": "outcome",
+      "label": "Outcome",
+      "values": [
+        "goal",
+        "shot",
+        "chance created",
+        "turnover",
+        "foul won",
+        "regain"
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "key": "goals",
+      "label": "Goals",
+      "description": "All goals scored, including penalties.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0,
+        0.6
+      ]
+    },
+    {
+      "key": "np_xg",
+      "label": "Non-penalty xG",
+      "description": "Sum of expected-goals values of non-penalty shots.",
+      "unit": "expected_goals",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0,
+        0.6
+      ]
+    },
+    {
+      "key": "shots",
+      "label": "Shots",
+      "description": "All shot attempts.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.2,
+        3.5
+      ]
+    },
+    {
+      "key": "xa",
+      "label": "Expected assists",
+      "description": "Sum of xG of shots directly assisted by the player's passes.",
+      "unit": "expected_goals",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0,
+        0.35
+      ]
+    },
+    {
+      "key": "key_passes",
+      "label": "Key passes",
+      "description": "Passes directly leading to a shot.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.1,
+        2.5
+      ]
+    },
+    {
+      "key": "passes_attempted",
+      "label": "Passes attempted",
+      "description": "All open-play and set-piece passes attempted.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        20,
+        80
+      ]
+    },
+    {
+      "key": "passes_completed",
+      "label": "Passes completed",
+      "description": "Passes that reached a team-mate.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        14,
+        72
+      ]
+    },
+    {
+      "key": "progressive_passes",
+      "label": "Progressive passes",
+      "description": "Completed passes starting outside the defensive 40% of the pitch that end at least 25% closer to the centre of the opponent's goal.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        1,
+        9
+      ]
+    },
+    {
+      "key": "progressive_carries",
+      "label": "Progressive carries",
+      "description": "Carries starting outside the defensive 40% of the pitch that end at least 25% closer to the centre of the opponent's goal.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.5,
+        6
+      ]
+    },
+    {
+      "key": "dribbles_completed",
+      "label": "Successful dribbles",
+      "description": "Take-ons that beat an opponent.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.1,
+        3
+      ]
+    },
+    {
+      "key": "pressures",
+      "label": "Pressures",
+      "description": "Pressure actions applied to an opponent in possession.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        5,
+        25
+      ]
+    },
+    {
+      "key": "tackles_won",
+      "label": "Tackles won",
+      "description": "Tackles that won the ball or put it out of play.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.3,
+        2.5
+      ]
+    },
+    {
+      "key": "interceptions",
+      "label": "Interceptions",
+      "description": "Successful interceptions of opponent passes.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.2,
+        2
+      ]
+    },
+    {
+      "key": "ball_recoveries",
+      "label": "Ball recoveries",
+      "description": "Loose balls recovered by the player.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        3,
+        10
+      ]
+    }
+  ],
+  "comparisonMetrics": {
+    "goalkeeper": [
+      "passes_attempted",
+      "passes_completed",
+      "progressive_passes"
+    ],
+    "centre_back": [
+      "tackles_won",
+      "interceptions",
+      "ball_recoveries",
+      "progressive_passes",
+      "passes_completed"
+    ],
+    "full_back": [
+      "progressive_passes",
+      "progressive_carries",
+      "key_passes",
+      "tackles_won",
+      "interceptions"
+    ],
+    "defensive_midfielder": [
+      "ball_recoveries",
+      "interceptions",
+      "tackles_won",
+      "pressures",
+      "progressive_passes"
+    ],
+    "central_midfielder": [
+      "progressive_passes",
+      "progressive_carries",
+      "key_passes",
+      "pressures",
+      "ball_recoveries"
+    ],
+    "attacking_midfielder": [
+      "xa",
+      "key_passes",
+      "np_xg",
+      "dribbles_completed",
+      "progressive_carries"
+    ],
+    "winger": [
+      "np_xg",
+      "xa",
+      "dribbles_completed",
+      "progressive_carries",
+      "key_passes"
+    ],
+    "striker": [
+      "np_xg",
+      "goals",
+      "shots",
+      "xa",
+      "pressures"
+    ]
+  }
+}

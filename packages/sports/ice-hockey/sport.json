@@ -1,0 +1,357 @@
+{
+  "id": "ice_hockey",
+  "name": "Ice hockey",
+  "valuationBasis": "annual_salary",
+  "exposure": {
+    "key": "minutes",
+    "label": "Time on ice (min)",
+    "per": 60,
+    "minimumForComparison": 200
+  },
+  "roleExposure": {
+    "goaltender": {
+      "key": "shots_against",
+      "label": "Shots against",
+      "per": 30,
+      "minimumForComparison": 300
+    }
+  },
+  "roles": [
+    {
+      "key": "centre",
+      "label": "Centre",
+      "group": "forward"
+    },
+    {
+      "key": "winger",
+      "label": "Winger",
+      "group": "forward"
+    },
+    {
+      "key": "defenceman",
+      "label": "Defenceman",
+      "group": "defence"
+    },
+    {
+      "key": "goaltender",
+      "label": "Goaltender",
+      "group": "goaltending"
+    }
+  ],
+  "eventTypes": [
+    {
+      "key": "shot",
+      "label": "Shot"
+    },
+    {
+      "key": "goal",
+      "label": "Goal"
+    },
+    {
+      "key": "faceoff",
+      "label": "Faceoff"
+    },
+    {
+      "key": "zone_entry",
+      "label": "Zone entry"
+    },
+    {
+      "key": "zone_exit",
+      "label": "Zone exit"
+    },
+    {
+      "key": "hit",
+      "label": "Hit"
+    },
+    {
+      "key": "block",
+      "label": "Blocked shot"
+    },
+    {
+      "key": "takeaway",
+      "label": "Takeaway"
+    },
+    {
+      "key": "giveaway",
+      "label": "Giveaway"
+    },
+    {
+      "key": "penalty",
+      "label": "Penalty"
+    },
+    {
+      "key": "save",
+      "label": "Save"
+    },
+    {
+      "key": "line_change",
+      "label": "Line change"
+    }
+  ],
+  "videoTags": [
+    {
+      "key": "strength",
+      "label": "Game state",
+      "values": [
+        "5v5",
+        "power play",
+        "penalty kill",
+        "4v4",
+        "3v3",
+        "empty net"
+      ]
+    },
+    {
+      "key": "forecheck",
+      "label": "Forecheck",
+      "values": [
+        "1-2-2",
+        "2-1-2",
+        "1-3-1",
+        "trap"
+      ]
+    },
+    {
+      "key": "entry_type",
+      "label": "Zone entry",
+      "values": [
+        "carry",
+        "dump-in",
+        "pass",
+        "failed"
+      ]
+    },
+    {
+      "key": "shot_danger",
+      "label": "Shot danger",
+      "values": [
+        "high",
+        "medium",
+        "low"
+      ]
+    },
+    {
+      "key": "defensive_structure",
+      "label": "Defensive zone structure",
+      "values": [
+        "box +1",
+        "swarm",
+        "man-on-man",
+        "collapsing"
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "key": "goals",
+      "label": "Goals",
+      "description": "Goals scored.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.1,
+        1.5
+      ]
+    },
+    {
+      "key": "primary_assists",
+      "label": "Primary assists",
+      "description": "First assists on goals.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.1,
+        1.2
+      ]
+    },
+    {
+      "key": "shots",
+      "label": "Shots on goal",
+      "description": "Shots on target.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        3,
+        12
+      ]
+    },
+    {
+      "key": "ixg",
+      "label": "Individual xG",
+      "description": "Expected goals from own shots.",
+      "unit": "expected_goals",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.2,
+        1.4
+      ]
+    },
+    {
+      "key": "controlled_zone_entries",
+      "label": "Controlled zone entries",
+      "description": "Offensive-zone entries with possession.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        2,
+        14
+      ]
+    },
+    {
+      "key": "controlled_zone_exits",
+      "label": "Controlled zone exits",
+      "description": "Defensive-zone exits with possession.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        2,
+        16
+      ]
+    },
+    {
+      "key": "takeaways",
+      "label": "Takeaways",
+      "description": "Puck taken from the opponent.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.5,
+        3
+      ]
+    },
+    {
+      "key": "giveaways",
+      "label": "Giveaways",
+      "description": "Puck lost to the opponent.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": false,
+      "typical": [
+        0.5,
+        3.5
+      ]
+    },
+    {
+      "key": "blocked_shots",
+      "label": "Blocked shots",
+      "description": "Opponent shots blocked.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.5,
+        6
+      ]
+    },
+    {
+      "key": "hits",
+      "label": "Hits",
+      "description": "Body checks delivered.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        1,
+        10
+      ]
+    },
+    {
+      "key": "faceoff_win_pct",
+      "label": "Faceoff win %",
+      "description": "Faceoffs won / taken.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.42,
+        0.6
+      ]
+    },
+    {
+      "key": "xg_for_pct",
+      "label": "xG for %",
+      "description": "Team share of expected goals with the player on ice (5v5).",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.42,
+        0.58
+      ]
+    },
+    {
+      "key": "save_pct",
+      "label": "Save %",
+      "description": "Saves / shots against.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.89,
+        0.925
+      ]
+    },
+    {
+      "key": "goals_saved_above_expected",
+      "label": "Goals saved above expected",
+      "description": "Expected goals against minus goals against.",
+      "unit": "expected_goals",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        -0.6,
+        0.6
+      ]
+    },
+    {
+      "key": "high_danger_save_pct",
+      "label": "High-danger save %",
+      "description": "Saves on high-danger shots.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.78,
+        0.87
+      ]
+    }
+  ],
+  "comparisonMetrics": {
+    "centre": [
+      "ixg",
+      "primary_assists",
+      "faceoff_win_pct",
+      "controlled_zone_entries",
+      "takeaways",
+      "xg_for_pct"
+    ],
+    "winger": [
+      "ixg",
+      "goals",
+      "primary_assists",
+      "shots",
+      "controlled_zone_entries",
+      "xg_for_pct"
+    ],
+    "defenceman": [
+      "controlled_zone_exits",
+      "blocked_shots",
+      "giveaways",
+      "takeaways",
+      "xg_for_pct",
+      "shots"
+    ],
+    "goaltender": [
+      "save_pct",
+      "goals_saved_above_expected",
+      "high_danger_save_pct"
+    ]
+  }
+}

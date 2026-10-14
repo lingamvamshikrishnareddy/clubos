@@ -1,0 +1,427 @@
+{
+  "id": "cricket",
+  "name": "Cricket",
+  "valuationBasis": "annual_salary",
+  "exposure": {
+    "key": "balls_faced",
+    "label": "Balls faced",
+    "per": 100,
+    "minimumForComparison": 300
+  },
+  "roleExposure": {
+    "fast_bowler": {
+      "key": "balls_bowled",
+      "label": "Balls bowled",
+      "per": 120,
+      "minimumForComparison": 360
+    },
+    "spin_bowler": {
+      "key": "balls_bowled",
+      "label": "Balls bowled",
+      "per": 120,
+      "minimumForComparison": 360
+    }
+  },
+  "roles": [
+    {
+      "key": "opening_batter",
+      "label": "Opening batter",
+      "group": "batting"
+    },
+    {
+      "key": "top_order_batter",
+      "label": "Top-order batter",
+      "group": "batting"
+    },
+    {
+      "key": "middle_order_batter",
+      "label": "Middle-order batter",
+      "group": "batting"
+    },
+    {
+      "key": "finisher",
+      "label": "Finisher",
+      "group": "batting"
+    },
+    {
+      "key": "wicketkeeper_batter",
+      "label": "Wicketkeeper-batter",
+      "group": "batting"
+    },
+    {
+      "key": "all_rounder",
+      "label": "All-rounder",
+      "group": "all-round"
+    },
+    {
+      "key": "fast_bowler",
+      "label": "Fast bowler",
+      "group": "bowling"
+    },
+    {
+      "key": "spin_bowler",
+      "label": "Spin bowler",
+      "group": "bowling"
+    }
+  ],
+  "eventTypes": [
+    {
+      "key": "delivery",
+      "label": "Delivery"
+    },
+    {
+      "key": "run",
+      "label": "Run"
+    },
+    {
+      "key": "boundary_four",
+      "label": "Four"
+    },
+    {
+      "key": "boundary_six",
+      "label": "Six"
+    },
+    {
+      "key": "wicket",
+      "label": "Wicket"
+    },
+    {
+      "key": "extra",
+      "label": "Extra"
+    },
+    {
+      "key": "catch",
+      "label": "Catch"
+    },
+    {
+      "key": "run_out",
+      "label": "Run out"
+    },
+    {
+      "key": "stumping",
+      "label": "Stumping"
+    },
+    {
+      "key": "review",
+      "label": "Review"
+    }
+  ],
+  "videoTags": [
+    {
+      "key": "length",
+      "label": "Length",
+      "values": [
+        "yorker",
+        "full",
+        "good length",
+        "back of a length",
+        "short"
+      ]
+    },
+    {
+      "key": "line",
+      "label": "Line",
+      "values": [
+        "wide outside off",
+        "outside off",
+        "stumps",
+        "leg stump",
+        "down leg"
+      ]
+    },
+    {
+      "key": "delivery_type",
+      "label": "Delivery type",
+      "values": [
+        "outswinger",
+        "inswinger",
+        "seam up",
+        "cutter",
+        "slower ball",
+        "bouncer",
+        "off-break",
+        "leg-break",
+        "googly",
+        "arm ball",
+        "carrom ball"
+      ]
+    },
+    {
+      "key": "shot",
+      "label": "Shot",
+      "values": [
+        "drive",
+        "cut",
+        "pull",
+        "hook",
+        "sweep",
+        "reverse sweep",
+        "flick",
+        "defence",
+        "leave",
+        "scoop"
+      ]
+    },
+    {
+      "key": "phase",
+      "label": "Phase",
+      "values": [
+        "powerplay",
+        "middle overs",
+        "death overs",
+        "new ball",
+        "old ball"
+      ]
+    },
+    {
+      "key": "field",
+      "label": "Field setting",
+      "values": [
+        "attacking",
+        "ring field",
+        "boundary riders",
+        "leg-side trap",
+        "off-side heavy"
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "key": "runs",
+      "label": "Runs",
+      "description": "Runs scored off the bat.",
+      "unit": "runs",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        80,
+        170
+      ]
+    },
+    {
+      "key": "batting_strike_rate",
+      "label": "Batting strike rate",
+      "description": "Runs per 100 balls faced.",
+      "unit": "runs",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        70,
+        170
+      ]
+    },
+    {
+      "key": "batting_average",
+      "label": "Batting average",
+      "description": "Runs per dismissal.",
+      "unit": "runs",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        15,
+        55
+      ]
+    },
+    {
+      "key": "boundary_pct",
+      "label": "Boundary %",
+      "description": "Balls faced hit for four or six.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.06,
+        0.25
+      ]
+    },
+    {
+      "key": "batting_dot_pct",
+      "label": "Dot-ball % (batting)",
+      "description": "Balls faced without scoring.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": false,
+      "typical": [
+        0.25,
+        0.5
+      ]
+    },
+    {
+      "key": "sixes",
+      "label": "Sixes",
+      "description": "Sixes hit.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.5,
+        9
+      ]
+    },
+    {
+      "key": "control_pct",
+      "label": "Control %",
+      "description": "Balls faced with a controlled shot or leave.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.72,
+        0.9
+      ]
+    },
+    {
+      "key": "wickets",
+      "label": "Wickets",
+      "description": "Wickets taken.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.5,
+        2.2
+      ]
+    },
+    {
+      "key": "economy_rate",
+      "label": "Economy rate",
+      "description": "Runs conceded per over.",
+      "unit": "runs",
+      "normalisation": "rate",
+      "higherIsBetter": false,
+      "typical": [
+        4,
+        9.5
+      ]
+    },
+    {
+      "key": "bowling_average",
+      "label": "Bowling average",
+      "description": "Runs conceded per wicket.",
+      "unit": "runs",
+      "normalisation": "rate",
+      "higherIsBetter": false,
+      "typical": [
+        18,
+        40
+      ]
+    },
+    {
+      "key": "bowling_strike_rate",
+      "label": "Bowling strike rate",
+      "description": "Balls bowled per wicket.",
+      "unit": "count",
+      "normalisation": "rate",
+      "higherIsBetter": false,
+      "typical": [
+        14,
+        45
+      ]
+    },
+    {
+      "key": "bowling_dot_pct",
+      "label": "Dot-ball % (bowling)",
+      "description": "Deliveries not scored from.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.3,
+        0.55
+      ]
+    },
+    {
+      "key": "average_speed",
+      "label": "Average speed",
+      "description": "Mean release speed.",
+      "unit": "kph",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        80,
+        145
+      ]
+    },
+    {
+      "key": "catches",
+      "label": "Catches",
+      "description": "Catches taken.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.2,
+        3
+      ]
+    },
+    {
+      "key": "keeper_dismissals",
+      "label": "Keeper dismissals",
+      "description": "Catches and stumpings as wicketkeeper.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        1,
+        5
+      ]
+    }
+  ],
+  "comparisonMetrics": {
+    "opening_batter": [
+      "runs",
+      "batting_strike_rate",
+      "batting_average",
+      "boundary_pct",
+      "control_pct"
+    ],
+    "top_order_batter": [
+      "runs",
+      "batting_average",
+      "batting_strike_rate",
+      "control_pct",
+      "batting_dot_pct"
+    ],
+    "middle_order_batter": [
+      "runs",
+      "batting_average",
+      "batting_strike_rate",
+      "batting_dot_pct",
+      "sixes"
+    ],
+    "finisher": [
+      "batting_strike_rate",
+      "sixes",
+      "boundary_pct",
+      "batting_dot_pct",
+      "runs"
+    ],
+    "wicketkeeper_batter": [
+      "keeper_dismissals",
+      "runs",
+      "batting_strike_rate",
+      "batting_average"
+    ],
+    "all_rounder": [
+      "runs",
+      "batting_strike_rate",
+      "wickets",
+      "economy_rate",
+      "catches"
+    ],
+    "fast_bowler": [
+      "wickets",
+      "economy_rate",
+      "bowling_strike_rate",
+      "bowling_dot_pct",
+      "average_speed"
+    ],
+    "spin_bowler": [
+      "wickets",
+      "economy_rate",
+      "bowling_average",
+      "bowling_dot_pct",
+      "bowling_strike_rate"
+    ]
+  }
+}

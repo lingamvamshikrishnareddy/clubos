@@ -1,0 +1,526 @@
+{
+  "id": "baseball",
+  "name": "Baseball",
+  "valuationBasis": "annual_salary",
+  "exposure": {
+    "key": "plate_appearances",
+    "label": "Plate appearances",
+    "per": 600,
+    "minimumForComparison": 150
+  },
+  "roleExposure": {
+    "starting_pitcher": {
+      "key": "batters_faced",
+      "label": "Batters faced",
+      "per": 600,
+      "minimumForComparison": 200
+    },
+    "relief_pitcher": {
+      "key": "batters_faced",
+      "label": "Batters faced",
+      "per": 600,
+      "minimumForComparison": 80
+    }
+  },
+  "roles": [
+    {
+      "key": "starting_pitcher",
+      "label": "Starting pitcher",
+      "group": "pitching"
+    },
+    {
+      "key": "relief_pitcher",
+      "label": "Relief pitcher",
+      "group": "pitching"
+    },
+    {
+      "key": "catcher",
+      "label": "Catcher",
+      "group": "infield"
+    },
+    {
+      "key": "first_base",
+      "label": "First base",
+      "group": "infield"
+    },
+    {
+      "key": "second_base",
+      "label": "Second base",
+      "group": "infield"
+    },
+    {
+      "key": "third_base",
+      "label": "Third base",
+      "group": "infield"
+    },
+    {
+      "key": "shortstop",
+      "label": "Shortstop",
+      "group": "infield"
+    },
+    {
+      "key": "left_field",
+      "label": "Left field",
+      "group": "outfield"
+    },
+    {
+      "key": "centre_field",
+      "label": "Centre field",
+      "group": "outfield"
+    },
+    {
+      "key": "right_field",
+      "label": "Right field",
+      "group": "outfield"
+    },
+    {
+      "key": "designated_hitter",
+      "label": "Designated hitter",
+      "group": "hitting"
+    }
+  ],
+  "eventTypes": [
+    {
+      "key": "pitch",
+      "label": "Pitch"
+    },
+    {
+      "key": "swing",
+      "label": "Swing"
+    },
+    {
+      "key": "batted_ball",
+      "label": "Batted ball"
+    },
+    {
+      "key": "strikeout",
+      "label": "Strikeout"
+    },
+    {
+      "key": "walk",
+      "label": "Walk"
+    },
+    {
+      "key": "hit",
+      "label": "Hit"
+    },
+    {
+      "key": "home_run",
+      "label": "Home run"
+    },
+    {
+      "key": "stolen_base",
+      "label": "Stolen base"
+    },
+    {
+      "key": "defensive_play",
+      "label": "Defensive play"
+    },
+    {
+      "key": "error",
+      "label": "Error"
+    }
+  ],
+  "videoTags": [
+    {
+      "key": "pitch_type",
+      "label": "Pitch type",
+      "values": [
+        "four-seam fastball",
+        "sinker",
+        "cutter",
+        "slider",
+        "sweeper",
+        "curveball",
+        "changeup",
+        "splitter"
+      ]
+    },
+    {
+      "key": "location",
+      "label": "Pitch location",
+      "values": [
+        "up and in",
+        "up and away",
+        "down and in",
+        "down and away",
+        "middle",
+        "chase"
+      ]
+    },
+    {
+      "key": "count",
+      "label": "Count",
+      "values": [
+        "0-0",
+        "ahead",
+        "behind",
+        "two strikes",
+        "full count"
+      ]
+    },
+    {
+      "key": "batted_ball",
+      "label": "Batted ball",
+      "values": [
+        "ground ball",
+        "line drive",
+        "fly ball",
+        "pop-up",
+        "barrel"
+      ]
+    },
+    {
+      "key": "shift",
+      "label": "Defensive alignment",
+      "values": [
+        "standard",
+        "infield in",
+        "no-doubles",
+        "strategic positioning"
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "key": "batting_avg",
+      "label": "Batting average",
+      "description": "Hits / at-bats.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.21,
+        0.31
+      ]
+    },
+    {
+      "key": "on_base_pct",
+      "label": "On-base %",
+      "description": "Times on base / plate appearances.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.28,
+        0.39
+      ]
+    },
+    {
+      "key": "slugging_pct",
+      "label": "Slugging %",
+      "description": "Total bases / at-bats.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.33,
+        0.55
+      ]
+    },
+    {
+      "key": "woba",
+      "label": "wOBA",
+      "description": "Weighted on-base average.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.28,
+        0.39
+      ]
+    },
+    {
+      "key": "home_runs",
+      "label": "Home runs",
+      "description": "Home runs hit.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        3,
+        40
+      ]
+    },
+    {
+      "key": "strikeout_rate",
+      "label": "Strikeout %",
+      "description": "Strikeouts / plate appearances.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": false,
+      "typical": [
+        0.12,
+        0.3
+      ]
+    },
+    {
+      "key": "walk_rate",
+      "label": "Walk %",
+      "description": "Walks / plate appearances.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.05,
+        0.14
+      ]
+    },
+    {
+      "key": "hard_hit_rate",
+      "label": "Hard-hit %",
+      "description": "Batted balls at 95 mph or more.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.3,
+        0.52
+      ]
+    },
+    {
+      "key": "avg_exit_velocity",
+      "label": "Average exit velocity",
+      "description": "Mean exit velocity of batted balls.",
+      "unit": "mph",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        85,
+        93
+      ]
+    },
+    {
+      "key": "stolen_bases",
+      "label": "Stolen bases",
+      "description": "Bases stolen.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0,
+        35
+      ]
+    },
+    {
+      "key": "outs_above_average",
+      "label": "Outs above average",
+      "description": "Range-based fielding value over the season.",
+      "unit": "count",
+      "normalisation": "total",
+      "higherIsBetter": true,
+      "typical": [
+        -8,
+        12
+      ]
+    },
+    {
+      "key": "era",
+      "label": "ERA",
+      "description": "Earned runs per nine innings.",
+      "unit": "runs",
+      "normalisation": "rate",
+      "higherIsBetter": false,
+      "typical": [
+        2.6,
+        5.2
+      ]
+    },
+    {
+      "key": "fip",
+      "label": "FIP",
+      "description": "Fielding-independent pitching.",
+      "unit": "runs",
+      "normalisation": "rate",
+      "higherIsBetter": false,
+      "typical": [
+        2.8,
+        5.0
+      ]
+    },
+    {
+      "key": "whip",
+      "label": "WHIP",
+      "description": "Walks plus hits per inning pitched.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": false,
+      "typical": [
+        0.95,
+        1.5
+      ]
+    },
+    {
+      "key": "k_per_9",
+      "label": "K/9",
+      "description": "Strikeouts per nine innings.",
+      "unit": "count",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        6,
+        12.5
+      ]
+    },
+    {
+      "key": "bb_per_9",
+      "label": "BB/9",
+      "description": "Walks per nine innings.",
+      "unit": "count",
+      "normalisation": "rate",
+      "higherIsBetter": false,
+      "typical": [
+        1.5,
+        4.5
+      ]
+    },
+    {
+      "key": "fastball_velocity",
+      "label": "Fastball velocity",
+      "description": "Average four-seam fastball velocity.",
+      "unit": "mph",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        91,
+        98.5
+      ]
+    },
+    {
+      "key": "spin_rate",
+      "label": "Fastball spin rate",
+      "description": "Average four-seam spin rate.",
+      "unit": "rpm",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        2100,
+        2550
+      ]
+    },
+    {
+      "key": "whiff_rate",
+      "label": "Whiff %",
+      "description": "Swings and misses / swings.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.18,
+        0.35
+      ]
+    },
+    {
+      "key": "ground_ball_rate",
+      "label": "Ground-ball %",
+      "description": "Ground balls / batted balls allowed.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.35,
+        0.55
+      ]
+    }
+  ],
+  "comparisonMetrics": {
+    "starting_pitcher": [
+      "era",
+      "fip",
+      "whip",
+      "k_per_9",
+      "bb_per_9",
+      "fastball_velocity",
+      "whiff_rate"
+    ],
+    "relief_pitcher": [
+      "fip",
+      "k_per_9",
+      "bb_per_9",
+      "fastball_velocity",
+      "spin_rate",
+      "whiff_rate"
+    ],
+    "catcher": [
+      "woba",
+      "on_base_pct",
+      "slugging_pct",
+      "home_runs",
+      "strikeout_rate",
+      "hard_hit_rate",
+      "outs_above_average"
+    ],
+    "first_base": [
+      "woba",
+      "on_base_pct",
+      "slugging_pct",
+      "home_runs",
+      "strikeout_rate",
+      "hard_hit_rate",
+      "outs_above_average"
+    ],
+    "second_base": [
+      "woba",
+      "on_base_pct",
+      "slugging_pct",
+      "home_runs",
+      "strikeout_rate",
+      "hard_hit_rate",
+      "outs_above_average"
+    ],
+    "third_base": [
+      "woba",
+      "on_base_pct",
+      "slugging_pct",
+      "home_runs",
+      "strikeout_rate",
+      "hard_hit_rate",
+      "outs_above_average"
+    ],
+    "shortstop": [
+      "woba",
+      "on_base_pct",
+      "slugging_pct",
+      "home_runs",
+      "strikeout_rate",
+      "hard_hit_rate",
+      "outs_above_average"
+    ],
+    "left_field": [
+      "woba",
+      "on_base_pct",
+      "slugging_pct",
+      "home_runs",
+      "stolen_bases",
+      "hard_hit_rate",
+      "outs_above_average"
+    ],
+    "centre_field": [
+      "woba",
+      "on_base_pct",
+      "slugging_pct",
+      "home_runs",
+      "stolen_bases",
+      "hard_hit_rate",
+      "outs_above_average"
+    ],
+    "right_field": [
+      "woba",
+      "on_base_pct",
+      "slugging_pct",
+      "home_runs",
+      "stolen_bases",
+      "hard_hit_rate",
+      "outs_above_average"
+    ],
+    "designated_hitter": [
+      "woba",
+      "on_base_pct",
+      "slugging_pct",
+      "home_runs",
+      "avg_exit_velocity",
+      "hard_hit_rate",
+      "strikeout_rate"
+    ]
+  }
+}

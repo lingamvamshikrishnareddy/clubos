@@ -1,0 +1,367 @@
+{
+  "id": "basketball",
+  "name": "Basketball",
+  "valuationBasis": "annual_salary",
+  "exposure": {
+    "key": "minutes",
+    "label": "Minutes",
+    "per": 36,
+    "minimumForComparison": 300
+  },
+  "roles": [
+    {
+      "key": "point_guard",
+      "label": "Point guard",
+      "group": "guard"
+    },
+    {
+      "key": "shooting_guard",
+      "label": "Shooting guard",
+      "group": "guard"
+    },
+    {
+      "key": "small_forward",
+      "label": "Small forward",
+      "group": "forward"
+    },
+    {
+      "key": "power_forward",
+      "label": "Power forward",
+      "group": "forward"
+    },
+    {
+      "key": "centre",
+      "label": "Centre",
+      "group": "big"
+    }
+  ],
+  "eventTypes": [
+    {
+      "key": "shot",
+      "label": "Shot"
+    },
+    {
+      "key": "free_throw",
+      "label": "Free throw"
+    },
+    {
+      "key": "rebound",
+      "label": "Rebound"
+    },
+    {
+      "key": "assist",
+      "label": "Assist"
+    },
+    {
+      "key": "turnover",
+      "label": "Turnover"
+    },
+    {
+      "key": "steal",
+      "label": "Steal"
+    },
+    {
+      "key": "block",
+      "label": "Block"
+    },
+    {
+      "key": "foul",
+      "label": "Foul"
+    },
+    {
+      "key": "screen",
+      "label": "Screen"
+    },
+    {
+      "key": "substitution",
+      "label": "Substitution"
+    }
+  ],
+  "videoTags": [
+    {
+      "key": "play_type",
+      "label": "Play type",
+      "values": [
+        "pick and roll ball handler",
+        "pick and roll roll man",
+        "isolation",
+        "post-up",
+        "spot-up",
+        "handoff",
+        "cut",
+        "off screen",
+        "transition",
+        "putback"
+      ]
+    },
+    {
+      "key": "pnr_coverage",
+      "label": "Pick-and-roll coverage",
+      "values": [
+        "drop",
+        "switch",
+        "hedge",
+        "blitz",
+        "ice",
+        "at the level"
+      ]
+    },
+    {
+      "key": "defence",
+      "label": "Team defence",
+      "values": [
+        "man",
+        "2-3 zone",
+        "3-2 zone",
+        "1-3-1 zone",
+        "full-court press"
+      ]
+    },
+    {
+      "key": "shot_zone",
+      "label": "Shot zone",
+      "values": [
+        "rim",
+        "short mid-range",
+        "long mid-range",
+        "corner three",
+        "above-the-break three"
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "key": "points",
+      "label": "Points",
+      "description": "Points scored.",
+      "unit": "points",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        6,
+        30
+      ]
+    },
+    {
+      "key": "rebounds",
+      "label": "Rebounds",
+      "description": "Total rebounds.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        2,
+        13
+      ]
+    },
+    {
+      "key": "offensive_rebounds",
+      "label": "Offensive rebounds",
+      "description": "Rebounds of own team's misses.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.3,
+        4
+      ]
+    },
+    {
+      "key": "assists",
+      "label": "Assists",
+      "description": "Passes leading directly to a score.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        1,
+        10
+      ]
+    },
+    {
+      "key": "turnovers",
+      "label": "Turnovers",
+      "description": "Possessions lost.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": false,
+      "typical": [
+        0.8,
+        4
+      ]
+    },
+    {
+      "key": "steals",
+      "label": "Steals",
+      "description": "Possessions won from the opponent.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.4,
+        2.2
+      ]
+    },
+    {
+      "key": "blocks",
+      "label": "Blocks",
+      "description": "Opponent shots blocked.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.1,
+        3
+      ]
+    },
+    {
+      "key": "true_shooting_pct",
+      "label": "True shooting %",
+      "description": "Points / (2 × (FGA + 0.44 × FTA)).",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.5,
+        0.66
+      ]
+    },
+    {
+      "key": "three_point_attempts",
+      "label": "3-point attempts",
+      "description": "Three-point shots attempted.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.2,
+        10
+      ]
+    },
+    {
+      "key": "three_point_pct",
+      "label": "3-point %",
+      "description": "Three-pointers made / attempted.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.28,
+        0.42
+      ]
+    },
+    {
+      "key": "free_throw_rate",
+      "label": "Free-throw rate",
+      "description": "Free-throw attempts / field-goal attempts.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.12,
+        0.45
+      ]
+    },
+    {
+      "key": "usage_rate",
+      "label": "Usage rate",
+      "description": "Share of team possessions used while on court.",
+      "unit": "ratio",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        0.14,
+        0.33
+      ]
+    },
+    {
+      "key": "on_off_net_rating",
+      "label": "On/off net rating",
+      "description": "Team net rating with the player on minus off court, per 100 possessions.",
+      "unit": "points",
+      "normalisation": "rate",
+      "higherIsBetter": true,
+      "typical": [
+        -6,
+        9
+      ]
+    },
+    {
+      "key": "deflections",
+      "label": "Deflections",
+      "description": "Passes or dribbles deflected.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.8,
+        4
+      ]
+    },
+    {
+      "key": "contested_shots",
+      "label": "Contested shots",
+      "description": "Opponent shots contested.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        3,
+        14
+      ]
+    },
+    {
+      "key": "screen_assists",
+      "label": "Screen assists",
+      "description": "Screens leading directly to a made shot.",
+      "unit": "count",
+      "normalisation": "per_exposure",
+      "higherIsBetter": true,
+      "typical": [
+        0.2,
+        5
+      ]
+    }
+  ],
+  "comparisonMetrics": {
+    "point_guard": [
+      "assists",
+      "turnovers",
+      "usage_rate",
+      "true_shooting_pct",
+      "three_point_pct",
+      "steals"
+    ],
+    "shooting_guard": [
+      "points",
+      "true_shooting_pct",
+      "three_point_attempts",
+      "three_point_pct",
+      "deflections"
+    ],
+    "small_forward": [
+      "points",
+      "true_shooting_pct",
+      "rebounds",
+      "three_point_pct",
+      "deflections",
+      "on_off_net_rating"
+    ],
+    "power_forward": [
+      "rebounds",
+      "true_shooting_pct",
+      "blocks",
+      "contested_shots",
+      "screen_assists",
+      "on_off_net_rating"
+    ],
+    "centre": [
+      "rebounds",
+      "offensive_rebounds",
+      "blocks",
+      "contested_shots",
+      "screen_assists",
+      "true_shooting_pct"
+    ]
+  }
+}

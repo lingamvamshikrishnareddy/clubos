@@ -12,11 +12,11 @@ export type SportId =
   | "ice_hockey"
   | "cricket";
 
-/** A tactical role used to compare like with like (e.g. soccer "fullback"). */
+/** A tactical role used to compare like with like (e.g. soccer "full_back", baseball "shortstop"). */
 export interface Role {
   key: string;
   label: string;
-  /** Broad grouping for UI and fallbacks, e.g. "defence". */
+  /** Broad grouping for UI and fallbacks, e.g. "defence", "pitching". */
   group: string;
 }
 
@@ -28,35 +28,77 @@ export interface EventType {
 
 /**
  * How a raw value is made comparable across players with different playing time.
- * Each sport names its own exposure unit (minutes, possessions, innings, plate appearances...).
+ * - total: shown as is (e.g. goals saved above expected over a season)
+ * - per_exposure: divided by exposure and scaled (e.g. per 90 minutes, per 100 balls)
+ * - rate: already a rate or percentage (e.g. strike rate, ERA); never rescaled
  */
 export type Normalisation = "total" | "per_exposure" | "rate";
+
+export type MetricUnit =
+  | "count"
+  | "ratio"
+  | "expected_goals"
+  | "yards"
+  | "mph"
+  | "kph"
+  | "rpm"
+  | "runs"
+  | "points";
 
 export interface MetricDefinition {
   key: string;
   label: string;
   description: string;
-  unit: "count" | "ratio" | "expected_goals";
+  unit: MetricUnit;
   normalisation: Normalisation;
   higherIsBetter: boolean;
+  /**
+   * Typical range of the normalised value for a regular player, used for chart scales
+   * and fictional demo data. Not used for any decision.
+   */
+  typical?: readonly [number, number];
 }
 
 export interface ExposureUnit {
-  /** e.g. "minutes" */
+  /** e.g. "minutes", "plate_appearances", "balls_faced" */
   key: string;
+  label: string;
   /** Per-exposure values are expressed per this many units, e.g. 90 minutes. */
   per: number;
-  /** Below this exposure a player's per-exposure values are flagged as low-sample. */
+  /** Below this exposure a player's values are flagged as low-sample. */
   minimumForComparison: number;
 }
+
+/** A group of video tags, e.g. American football "coverage" = cover 1, cover 2, ... */
+export interface TagGroup {
+  key: string;
+  label: string;
+  values: readonly string[];
+}
+
+/**
+ * What a player's market value means in this sport: a transfer fee (soccer) or the annual
+ * salary the market pays (leagues with drafts, trades, free agency or auctions).
+ */
+export type ValuationBasis = "transfer_fee" | "annual_salary";
 
 export interface SportModule {
   id: SportId;
   name: string;
+  valuationBasis: ValuationBasis;
+  /** Exposure unit for roles that don't override it. */
   exposure: ExposureUnit;
+  /** Roles measured differently, e.g. pitchers by batters faced rather than plate appearances. */
+  roleExposure?: Readonly<Record<string, ExposureUnit>>;
   roles: readonly Role[];
   eventTypes: readonly EventType[];
   metrics: readonly MetricDefinition[];
+  /** Vocabulary for tagging video in this sport (Stage 2). */
+  videoTags: readonly TagGroup[];
   /** Metrics shown by default when comparing players in a role. */
   comparisonMetrics(roleKey: string): readonly string[];
+}
+
+export function exposureFor(sport: SportModule, roleKey: string): ExposureUnit {
+  return sport.roleExposure?.[roleKey] ?? sport.exposure;
 }

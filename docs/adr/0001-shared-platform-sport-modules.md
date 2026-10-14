@@ -16,11 +16,10 @@ none of them well.
   - roles
   - an event taxonomy
   - metric definitions
-  - an exposure unit, such as minutes, possessions, innings or plate appearances
+  - an exposure unit, such as minutes, snaps or plate appearances, with per-role overrides where a sport measures roles differently (pitchers by batters faced, bowlers by balls bowled)
   - default comparison metrics per role
-
-  Later stages will add a video tag schema, valuation inputs and tactical models.
-- **Metric definitions are data.** Each module keeps them in a JSON file (for example `packages/sports/soccer/metrics.json`) that the TypeScript app and the Python services both read, so metric keys cannot drift apart.
+  - a video tag vocabulary (formations, coverages, pitch types, lengths...)
+- **Sport definitions are data.** Each module is a `sport.json` file (for example `packages/sports/soccer/sport.json`) holding roles, exposure units, events, video tags and metrics. The TypeScript app (via `defineSport`, which validates it) and the Python services both read it, so keys cannot drift apart.
 - **Sport-specific attributes go in `players.attributes` (jsonb).** Shared tables do not get sport-specific columns.
 - **Monorepo.** TypeScript for the web app, API and shared packages; Python for data, ML and video services; Postgres for storage; object storage for video.
 
