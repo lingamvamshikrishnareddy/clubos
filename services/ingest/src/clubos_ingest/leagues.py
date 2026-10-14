@@ -91,10 +91,21 @@ def ensure_league(conn: psycopg.Connection, key: str) -> tuple[Any, dict[str, An
 
     for group in league["structure"].get("groups", []):
         add_group(group, None)
+    # Former codes and names (relocations, renames) resolve to the current team.
+    for alias, short in league.get("aliases", {}).items():
+        teams[alias] = teams[short]
 
-    # Provider competition IDs that should load into this competition.
+    # Provider competition IDs that should load into this competition. If a provider
+    # competition was loaded before the reference league existed, move its seasons here.
     for competition, _season in league.get("sources", {}).get("statsbomb", []):
-        _link(conn, "statsbomb_open_data", "competition", str(competition), competition_id)
+        previous = _entity(conn, "statsbomb_open_data", "competition", str(competition))
+        if previous is None:
+            _link(conn, "statsbomb_open_data", "competition", str(competition), competition_id)
+        elif previous != competition_id:
+            conn.execute("update seasons set competition_id = %s where competition_id = %s", (competition_id, previous))
+            conn.execute("update source_entity_ids set entity_id = %s where entity_type = 'competition' and entity_id = %s",
+                         (competition_id, previous))
+            conn.execute("delete from competitions where id = %s and reference_key is null", (previous,))
     return competition_id, teams
 
 

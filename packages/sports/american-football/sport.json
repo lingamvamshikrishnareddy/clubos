@@ -249,7 +249,8 @@
       "typical": [
         0.55,
         0.72
-      ]
+      ],
+      "weightBy": "pass_attempts"
     },
     {
       "key": "passing_tds",

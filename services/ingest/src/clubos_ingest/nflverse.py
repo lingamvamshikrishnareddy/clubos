@@ -24,7 +24,7 @@ from typing import Any
 import psycopg
 from psycopg.types.json import Jsonb
 
-from .leagues import ensure_league
+from .leagues import ensure_league, reference_leagues
 
 SOURCE_ID = "nflverse"
 BASE_URL = "https://github.com/nflverse/nflverse-data/releases/download"
@@ -75,6 +75,13 @@ def _down_label(down: int | None, to_go: float | None, yardline_100: float | Non
     if down == 4:
         return "4th down"
     return f"{'2nd' if down == 2 else '3rd'} & {'long' if to_go > (6 if down == 2 else 5) else 'short'}"
+
+
+def _canonical(row: dict[str, str], aliases: dict[str, str], columns: Iterable[str]) -> dict[str, str]:
+    for column in columns:
+        if row.get(column) in aliases:
+            row[column] = aliases[row[column]]
+    return row
 
 
 def _outcome(row: dict[str, str], kind: str) -> str | None:
@@ -129,8 +136,14 @@ def _link(conn: psycopg.Connection, kind: str, external_id: str, entity_id: Any)
 
 def _load(conn: psycopg.Connection, run_id: Any, competition_id: Any, teams: dict[str, Any], season: int,
           fetch: Fetch) -> int:
-    plays = list(fetch(f"pbp/play_by_play_{season}.csv.gz"))
-    snaps = list(fetch(f"snap_counts/snap_counts_{season}.csv"))
+    # Former codes (OAK, SD, STL) appear in some files and seasons; use today's code everywhere
+    # so a player's snaps and plays land on the same team.
+    aliases = reference_leagues()["nfl"].get("aliases", {})
+    plays = [_canonical(row, aliases, ("home_team", "away_team", "posteam", "defteam")) for row in fetch(f"pbp/play_by_play_{season}.csv.gz")]
+    snaps = [_canonical(row, aliases, ("team",)) for row in fetch(f"snap_counts/snap_counts_{season}.csv")]
+    tackle_team_columns = [f"{c}_team" for c in ("solo_tackle_1", "solo_tackle_2", "assist_tackle_1", "assist_tackle_2",
+                                                  "assist_tackle_3", "assist_tackle_4", "tackle_with_assist_1", "tackle_with_assist_2")]
+    plays = [_canonical(row, aliases, tackle_team_columns) for row in plays]
     gsis_ids = {p for row in plays for p in (row.get("passer_player_id"), row.get("receiver_player_id"),
                                              row.get("rusher_player_id"), row.get("kicker_player_id"),
                                              row.get("punter_player_id")) if p}
@@ -255,7 +268,9 @@ def _load(conn: psycopg.Connection, run_id: Any, competition_id: Any, teams: dic
             add(row["kicker_player_id"], offence, "fg_made", 1 if row["field_goal_result"] == "made" else 0)
         elif kind == "punt" and row["punt_blocked"] != "1":
             add(row["punter_player_id"], offence, "punts")
-            add(row["punter_player_id"], offence, "net_punt_yards", yards_of(row, "kick_distance") - yards_of(row, "return_yards"))
+            # Official net average: distance minus return, minus 20 yards for a touchback.
+            net = yards_of(row, "kick_distance") - yards_of(row, "return_yards") - (20 if row.get("touchback") == "1" else 0)
+            add(row["punter_player_id"], offence, "net_punt_yards", net)
         if kind in ("pass", "run"):
             # Defensive credit on scrimmage plays, to the tackler's own team (turnover returns
             # can put offensive players in the tackle columns).
@@ -287,7 +302,9 @@ def _load(conn: psycopg.Connection, run_id: Any, competition_id: Any, teams: dic
         if s.get("targets"):
             values |= {"targets": s["targets"], "receptions": s.get("receptions", 0), "receiving_yards": s.get("receiving_yards", 0),
                        "yards_after_catch": s.get("yards_after_catch", 0)}
-        if role in DEFENSIVE_ROLES:
+        if role in DEFENSIVE_ROLES and not gsis.startswith("pfr:"):
+            # Only players whose plays can be attributed (a GSIS id) get defensive counts;
+            # for the rest they are unknown, not zero.
             values |= {"tackles": s.get("tackles", 0), "sacks": s.get("sacks", 0), "passes_defended": s.get("passes_defended", 0)}
         if s.get("fg_attempts"):
             values["field_goal_pct"] = round(s["fg_made"] / s["fg_attempts"], 4)
@@ -323,7 +340,9 @@ def _load(conn: psycopg.Connection, run_id: Any, competition_id: Any, teams: dic
         down = int(row["down"]) if row["down"] not in ("", "NA") else None
         to_go = _f(row["ydstogo"])
         attributes = {k: v for k, v in {
-            "offensive_formation": "shotgun" if row["shotgun"] == "1" else "under centre",
+            # nflverse only flags shotgun; under centre and pistol are not distinguished, so
+            # other plays get no formation tag rather than a guessed one.
+            "offensive_formation": "shotgun" if row["shotgun"] == "1" and kind in ("pass", "rush", "sack") else None,
             "down_distance": _down_label(down, to_go, yardline), "down": down, "to_go": to_go,
             "success": row["success"] == "1" if row["success"] not in ("", "NA") else None,
             "epa": _f(row["epa"]), "week": int(row["week"]), "pass_location": row["pass_location"] or None,

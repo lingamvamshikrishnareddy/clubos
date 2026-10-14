@@ -16,6 +16,11 @@ change every year, so update the file at the start of each season.
 ## How rules are used
 
 - **Standings:** `v_league_table` ranks regular-season matches by each league's rule: points for football and cricket, win percentage for the NFL and NBA.
+  - A recorded result overrides the score comparison: cricket super-over and DLS winners, ties, and no-results (which earn the rule's `noResult` points).
+  - Knockout and playoff matches never count.
+  - `group_position` ranks teams within their division (NFL, NBA) or tournament group (for example "2022 Group C").
+  - Tie-breaks after score difference, such as cricket's net run rate, are not modelled yet.
+- **Former names and codes:** each league's `aliases` map relocated or renamed teams (OAK → LV, Royal Challengers Bangalore → RCB) to today's team, so history stays with one team.
 - **Roster checks:** `checkRoster` and `checkPlannedRoster` in `packages/core` check a roster or a planned window against salary caps (hard or soft, with tax and apron tiers), auction purses, squad sizes and overseas-player limits.
   - When a player's nationality is unknown, the check reports that it cannot confirm the limit; it never guesses.
 - **Pyramids:** `competitions.pyramid` and `tier` record league pyramids, and the rules name where teams are promoted and relegated to.

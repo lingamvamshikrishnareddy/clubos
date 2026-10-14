@@ -98,6 +98,14 @@ def _upsert_team(cur: psycopg.Cursor, external_id: str, name: str, country: str 
     return team_id
 
 
+def stage_of(match: dict[str, Any]) -> str:
+    """League and group matches count towards tables; knockout rounds do not."""
+    name = ((match.get("competition_stage") or {}).get("name") or "").lower()
+    if name in ("", "regular season", "group stage"):
+        return "regular"
+    return "final" if name == "final" else "playoff"
+
+
 def _upsert_match(cur: psycopg.Cursor, season_id: Any, match: dict[str, Any]) -> tuple[Any, dict[str, Any]]:
     """Returns the match ID and a map of StatsBomb team ID -> internal team ID."""
     home, away = match["home_team"], match["away_team"]
@@ -110,24 +118,47 @@ def _upsert_match(cur: psycopg.Cursor, season_id: Any, match: dict[str, Any]) ->
     # StatsBomb kick-off times carry no time zone; they are stored as UTC until venue
     # time zones are modelled.
     kickoff = f'{match["match_date"]}T{match["kick_off"]}Z' if match.get("kick_off") else None
-    values = (season_id, home_id, away_id, kickoff, match.get("home_score"), match.get("away_score"))
+    values = (season_id, home_id, away_id, kickoff, match.get("home_score"), match.get("away_score"),
+              stage_of(match), (match.get("competition_stage") or {}).get("name"))
     external_id = str(match["match_id"])
     if (match_id := _entity_id(cur, "match", external_id)) is not None:
         cur.execute(
             "update matches set season_id = %s, home_team_id = %s, away_team_id = %s,"
-            " kickoff_at = %s, home_score = %s, away_score = %s where id = %s",
+            " kickoff_at = %s, home_score = %s, away_score = %s, stage = %s, round = %s where id = %s",
             (*values, match_id),
         )
     else:
         cur.execute(
-            "insert into matches (season_id, home_team_id, away_team_id, kickoff_at, home_score, away_score)"
-            " values (%s, %s, %s, %s, %s, %s) returning id",
+            "insert into matches (season_id, home_team_id, away_team_id, kickoff_at, home_score, away_score, stage, round)"
+            " values (%s, %s, %s, %s, %s, %s, %s, %s) returning id",
             values,
         )
         match_id = cur.fetchone()[0]
         _remember(cur, "match", external_id, match_id)
     teams = {str(home["home_team_id"]): home_id, str(away["away_team_id"]): away_id}
+    _record_groups(cur, season_id, match, teams)
     return match_id, teams
+
+
+def _record_groups(cur: psycopg.Cursor, season_id: Any, match: dict[str, Any], teams: dict[str, Any]) -> None:
+    """Tournament groups (e.g. World Cup Group F), named per season because groups change."""
+    if stage_of(match) != "regular":
+        return
+    cur.execute("select s.competition_id, s.label from seasons s where s.id = %s", (season_id,))
+    competition_id, label = cur.fetchone()
+    for side in ("home", "away"):
+        group = match[f"{side}_team"].get(f"{side}_team_group")
+        if not group:
+            continue
+        cur.execute(
+            "insert into competition_groups (competition_id, kind, name) values (%s, 'group', %s)"
+            " on conflict (competition_id, name) do update set kind = excluded.kind returning id",
+            (competition_id, f"{label} Group {group}"))
+        group_id = cur.fetchone()[0]
+        cur.execute(
+            "insert into competition_group_teams (group_id, team_id, from_season, to_season) values (%s, %s, %s, %s)"
+            " on conflict (group_id, team_id) do nothing",
+            (group_id, teams[str(match[f"{side}_team"][f"{side}_team_id"])], label, label))
 
 
 def _resolve_player(cur: psycopg.Cursor, source_player_id: str, name: str, role_key: str | None) -> Any:

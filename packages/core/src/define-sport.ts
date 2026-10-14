@@ -40,6 +40,9 @@ export function defineSport(definition: SportDefinition): SportModule {
   for (const metric of definition.metrics) {
     const t = metric.typical;
     if (t && (t.length !== 2 || t[0] > t[1])) problems.push(`metric ${metric.key}: typical must be [low, high]`);
+    if (metric.weightBy !== undefined && !metricKeys.has(metric.weightBy)) {
+      problems.push(`metric ${metric.key}: weightBy refers to unknown metric ${metric.weightBy}`);
+    }
   }
   for (const role of roleKeys) {
     const keys = definition.comparisonMetrics[role];

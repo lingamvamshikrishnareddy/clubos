@@ -27,6 +27,9 @@ PLAYS = [
     play(play_id="5", play_type="qb_kneel", rusher_player_id="QB1", yards_gained="-1", rushing_yards="-1"),
     play(play_id="6", play_type="field_goal", posteam="BUF", defteam="KC", kicker_player_id="K1", field_goal_result="made",
          kick_distance="40"),
+    # 50-yard punt for a touchback: officially 30 net yards.
+    play(play_id="9", play_type="punt", posteam="BUF", defteam="KC", punter_player_id="P1", kick_distance="50",
+         return_yards="0", touchback="1", shotgun="0"),
     play(play_id="7", play_type="run", rusher_player_id="RB1", two_point_attempt="1", yards_gained="2"),
     play(play_id="8", play_type="run", season_type="POST", game_id="2025_19_KC_BUF", rusher_player_id="RB1",
          yards_gained="50", rushing_yards="50"),
@@ -35,7 +38,12 @@ SNAPS = [
     {"game_id": "2024_01_KC_BUF", "game_type": "REG", "pfr_player_id": pfr, "position": pos, "team": team,
      "offense_snaps": off, "defense_snaps": dfn, "st_snaps": "0"}
     for pfr, pos, team, off, dfn in [("QbPf", "QB", "KC", "60", "0"), ("WrPf", "WR", "KC", "55", "0"), ("RbPf", "RB", "KC", "40", "0"),
-                                     ("CbPf", "CB", "BUF", "0", "58"), ("DePf", "DE", "BUF", "0", "50"), ("KPf", "K", "BUF", "0", "0")]
+                                     ("CbPf", "CB", "BUF", "0", "58"), ("DePf", "DE", "BUF", "0", "50"), ("KPf", "K", "BUF", "0", "0"),
+                                     ("PPf", "P", "BUF", "0", "0"),
+                                     # Former team code in the snap file: must land on today's team (LV).
+                                     ("LbPf", "LB", "OAK", "0", "40"),
+                                     # In snap counts but with no GSIS id: plays cannot be attributed.
+                                     ("NoPf", "LB", "BUF", "0", "30")]
 ] + [{"game_id": "2025_19_KC_BUF", "game_type": "POST", "pfr_player_id": "RbPf", "position": "RB", "team": "KC",
       "offense_snaps": "45", "defense_snaps": "0", "st_snaps": "0"}]
 PEOPLE = [
@@ -43,7 +51,9 @@ PEOPLE = [
      "height": "74", "weight": "220", "college_name": ""}
     for gsis, pfr, name, pos in [("QB1", "QbPf", "Test Quarterback", "QB"), ("WR1", "WrPf", "Test Receiver", "WR"),
                                  ("RB1", "RbPf", "Test Back", "RB"), ("CB1", "CbPf", "Test Corner", "CB"),
-                                 ("DE1", "DePf", "Test End", "DE"), ("K1", "KPf", "Test Kicker", "K")]
+                                 ("DE1", "DePf", "Test End", "DE"), ("K1", "KPf", "Test Kicker", "K"),
+                                 ("P1", "PPf", "Test Punter", "P"), ("LB1", "LbPf", "Test Raider", "LB"),
+                                 ("", "NoPf", "Test Unmatched", "LB")]
 ]
 
 
@@ -78,3 +88,17 @@ def test_loads_a_season_with_correct_credit(empty_db):
     # Teams are the reference NFL teams; standings ranked by win percentage.
     assert one("select team from v_league_table where position = 1") == "Buffalo Bills"
     assert one("select count(*) from match_events where event_type = 'sack'") == 1
+
+
+def test_former_codes_touchbacks_and_unknowns(empty_db):
+    conn = empty_db
+    load_season(conn, 2024, fetch=fetch)
+    raider = conn.execute(
+        "select t.short_name, s.exposure from player_season_stats s join players p on p.id = s.player_id"
+        " join teams t on t.id = s.team_id where p.full_name = 'Test Raider'").fetchone()
+    assert raider == ("LV", 40)
+    assert metrics(conn, "Test Punter") == {"net_punt_avg": 30}
+    assert metrics(conn, "Test Unmatched") == {}  # unknown, not zero
+    formations = dict(conn.execute(
+        "select event_type, count(*) filter (where attributes ? 'offensive_formation') from match_events group by 1").fetchall())
+    assert formations["punt"] == 0 and formations["field_goal"] == 0

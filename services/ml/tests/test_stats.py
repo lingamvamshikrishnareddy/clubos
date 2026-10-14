@@ -85,13 +85,25 @@ def test_traded_player_rows_are_merged():
 
     from clubos_ml.pipeline import Sample, merge_team_rows
 
-    metrics = {"rushing_yards": {"normalisation": "per_exposure"}, "yards_per_carry": {"normalisation": "rate"}}
+    metrics = {"rushing_yards": {"normalisation": "per_exposure"}, "yards_per_carry": {"normalisation": "rate"},
+               "pass_attempts": {"normalisation": "per_exposure"},
+               "completion_pct": {"normalisation": "rate", "weightBy": "pass_attempts"}}
     rows = [
-        Sample("p", "c", "s", "2024", "running_back", 300, date(1997, 1, 1), {"rushing_yards": 400, "yards_per_carry": 4.0}),
-        Sample("p", "c", "s", "2024", "wide_receiver", 100, date(1997, 1, 1), {"rushing_yards": 100, "yards_per_carry": 5.0}),
-        Sample("q", "c", "s", "2024", "running_back", 50, None, {"rushing_yards": None}),
+        Sample("p", "c", "s", "2024", "running_back", 300, date(1997, 1, 1), {"rushing_yards": 400, "yards_per_carry": 4.0},
+               exposure_unit="snaps"),
+        Sample("p", "c", "s", "2024", "wide_receiver", 100, date(1997, 1, 1), {"rushing_yards": 100, "yards_per_carry": 5.0},
+               exposure_unit="snaps"),
+        Sample("q", "c", "s", "2024", "running_back", 50, None, {"rushing_yards": None}, exposure_unit="snaps"),
+        # Traded quarterback: completion % combines by attempts, not snaps (213 / 310).
+        Sample("qb", "c", "s", "2024", "quarterback", 400, None, {"pass_attempts": 300, "completion_pct": 0.70}, exposure_unit="snaps"),
+        Sample("qb", "c", "s", "2024", "quarterback", 100, None, {"pass_attempts": 10, "completion_pct": 0.30}, exposure_unit="snaps"),
+        # Rows in a different unit are not added to the main row.
+        Sample("k", "c", "s", "2024", "kicker", 30, None, {}, exposure_unit="kicks"),
+        Sample("k", "c", "s", "2024", "punter", 5, None, {}, exposure_unit="punts"),
     ]
     merged = {s.player_id: s for s in merge_team_rows(rows, metrics)}
     assert merged["p"].role == "running_back" and merged["p"].exposure == 400
     assert merged["p"].totals == {"rushing_yards": 500, "yards_per_carry": 4.25}
     assert merged["q"].totals == {"rushing_yards": None}
+    assert merged["qb"].totals["completion_pct"] == pytest.approx(213 / 310)
+    assert merged["k"].exposure == 30 and merged["k"].exposure_unit == "kicks"

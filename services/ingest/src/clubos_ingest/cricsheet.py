@@ -26,7 +26,7 @@ from typing import Any
 import psycopg
 from psycopg.types.json import Jsonb
 
-from .leagues import ensure_league
+from .leagues import ensure_league, reference_leagues
 
 SOURCE_ID = "cricsheet"
 BOWLER_WICKETS = {"bowled", "caught", "caught and bowled", "lbw", "stumped", "hit wicket"}
@@ -94,7 +94,8 @@ def load(conn: psycopg.Connection, source: str | Path, league_key: str = "ipl") 
                           (SOURCE_ID, f"{league_key} from {source}")).fetchone()[0]
     conn.commit()
     try:
-        records = _load(conn, run_id, competition_id, reference_teams, read_matches(source))
+        aliases = {name: reference_teams[short] for name, short in reference_leagues()[league_key].get("aliases", {}).items()}
+        records = _load(conn, run_id, competition_id, reference_teams, aliases, read_matches(source))
     except BaseException as error:
         conn.rollback()
         conn.execute("update ingestion_runs set status = 'failed', finished_at = now(), notes = notes || %s where id = %s",
@@ -107,10 +108,24 @@ def load(conn: psycopg.Connection, source: str | Path, league_key: str = "ipl") 
     return run_id
 
 
+def _result(info: dict[str, Any], team_id: Any) -> tuple[Any, str | None]:
+    """(winner team id, result) from Cricsheet's outcome: super-over and DLS winners are
+    recorded even when the runs alone would say otherwise."""
+    outcome = info.get("outcome", {})
+    winner = outcome.get("winner") or outcome.get("eliminator")
+    if winner:
+        return team_id(winner), "win"
+    result = outcome.get("result")
+    return None, {"no result": "no_result", "tie": "tie", "draw": "draw"}.get(result)
+
+
 def _load(conn: psycopg.Connection, run_id: Any, competition_id: Any, reference_teams: dict[str, Any],
-          matches: Iterable[tuple[str, dict[str, Any]]]) -> int:
+          aliases: dict[str, Any], matches: Iterable[tuple[str, dict[str, Any]]]) -> int:
     teams_by_name = {name: team_id for name, team_id in conn.execute(
         "select t.name, t.id from teams t where t.id = any(%s)", (list(reference_teams.values()),)).fetchall()}
+    # Former franchise names resolve to the current team.
+    teams_by_name |= aliases
+    season_dates: dict[str, list[str]] = defaultdict(list)
     seasons: dict[str, Any] = {}
     players: dict[str, Any] = {}
     # Per (person, season, team): counting stats and usage for role assignment.
@@ -155,6 +170,7 @@ def _load(conn: psycopg.Connection, run_id: Any, competition_id: Any, reference_
                     "insert into seasons (competition_id, label) values (%s, %s) returning id", (competition_id, season)).fetchone()[0]
                 _link(conn, "season", f"{competition_id}:{season}", seasons[season])
         season_id = seasons[season]
+        season_dates[season] += info["dates"]
         registry = info.get("registry", {}).get("people", {})
         team_names = info["teams"]
         # Cricsheet does not mark a home side; the first listed team is stored as home.
@@ -162,17 +178,20 @@ def _load(conn: psycopg.Connection, run_id: Any, competition_id: Any, reference_
         innings = [i for i in data.get("innings", []) if not i.get("super_over")]
         totals = {i["team"]: sum(d["runs"]["total"] for o in i["overs"] for d in o["deliveries"]) for i in innings}
         stage = PLAYOFF_STAGES.get(str(info.get("event", {}).get("stage", "")).lower(), "regular")
+        winner, result = _result(info, team_id)
         values = (season_id, home, away, f"{info['dates'][0]}T00:00:00Z", totals.get(team_names[0]), totals.get(team_names[1]),
-                  stage, str(info.get("event", {}).get("match_number") or info.get("event", {}).get("stage") or ""))
+                  stage, str(info.get("event", {}).get("match_number") or info.get("event", {}).get("stage") or ""),
+                  winner, result)
         match_id = _entity(conn, "match", match_key)
         if match_id is None:
             match_id = conn.execute(
-                "insert into matches (season_id, home_team_id, away_team_id, kickoff_at, home_score, away_score, stage, round)"
-                " values (%s, %s, %s, %s, %s, %s, %s, %s) returning id", values).fetchone()[0]
+                "insert into matches (season_id, home_team_id, away_team_id, kickoff_at, home_score, away_score, stage, round,"
+                " winner_team_id, result) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) returning id", values).fetchone()[0]
             _link(conn, "match", match_key, match_id)
         else:
             conn.execute("update matches set season_id = %s, home_team_id = %s, away_team_id = %s, kickoff_at = %s,"
-                         " home_score = %s, away_score = %s, stage = %s, round = %s where id = %s", (*values, match_id))
+                         " home_score = %s, away_score = %s, stage = %s, round = %s, winner_team_id = %s, result = %s"
+                         " where id = %s", (*values, match_id))
 
         for squad_team, names in info.get("players", {}).items():
             for name in names:
@@ -242,6 +261,11 @@ def _load(conn: psycopg.Connection, run_id: Any, competition_id: Any, reference_
                 " values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
                 " on conflict (source_id, source_record_id) do nothing", events)
         loaded += 1
+
+    # Season dates, so "latest season" is well defined for the models.
+    for season, dates in season_dates.items():
+        conn.execute("update seasons set starts_on = least(coalesce(starts_on, %s), %s), ends_on = greatest(coalesce(ends_on, %s), %s)"
+                     " where id = %s", (min(dates), min(dates), max(dates), max(dates), seasons[season]))
 
     # Season stats -----------------------------------------------------------------------
     written = 0

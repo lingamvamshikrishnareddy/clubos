@@ -20,6 +20,7 @@ MATCH = {
     "info": {
         "dates": ["2025-03-22"], "match_type": "T20", "season": "2025", "teams": ["Chennai Super Kings", "Mumbai Indians"],
         "event": {"name": "Indian Premier League", "match_number": 1},
+        "outcome": {"winner": "Chennai Super Kings", "by": {"runs": 10}},
         "players": {"Chennai Super Kings": ["Opener One", "Opener Two", "Number Three", "Bowl P", "Bowl Q"],
                     "Mumbai Indians": ["Bat X", "Bat Y", "Seamer A", "Spinner B", "Keeper K"]},
         "registry": {"people": REGISTRY},
@@ -48,6 +49,23 @@ MATCH = {
 }
 
 
+def simple_match(date, teams, outcome, innings):
+    return {"info": {"dates": [date], "match_type": "T20", "season": "2025", "teams": teams,
+                     "event": {"name": "Indian Premier League"}, "outcome": outcome,
+                     "players": {teams[0]: ["Bat Y"], teams[1]: ["Bowl Q"]}, "registry": {"people": REGISTRY}},
+            "innings": innings}
+
+
+# Tied on runs, won by Mumbai in the super over, against the franchise's former name.
+SUPER_OVER = simple_match("2025-03-25", ["Royal Challengers Bangalore", "Mumbai Indians"],
+                          {"result": "tie", "eliminator": "Mumbai Indians"}, [
+    {"team": "Royal Challengers Bangalore", "overs": [{"over": 0, "deliveries": [delivery("Bat Y", "Bowl Q", 3, non_striker="Bat X")]}]},
+    {"team": "Mumbai Indians", "overs": [{"over": 0, "deliveries": [delivery("Bat Y", "Bowl Q", 3, non_striker="Bat X")]}]},
+    {"team": "Mumbai Indians", "super_over": True, "overs": [{"over": 0, "deliveries": [delivery("Bat Y", "Bowl Q", 6, non_striker="Bat X")]}]},
+])
+NO_RESULT = simple_match("2025-03-28", ["Chennai Super Kings", "Royal Challengers Bangalore"], {"result": "no result"}, [])
+
+
 def test_assign_role_from_usage():
     assert assign_role([1, 2, 1], 90, 0, 3) == "opening_batter"
     assert assign_role([5, 6], 40, 0, 2) == "middle_order_batter"
@@ -59,14 +77,18 @@ def test_assign_role_from_usage():
 
 def test_loads_ball_by_ball_into_the_ipl(empty_db, tmp_path):
     (tmp_path / "1001.json").write_text(json.dumps(MATCH))
+    (tmp_path / "1002.json").write_text(json.dumps(SUPER_OVER))
+    (tmp_path / "1003.json").write_text(json.dumps(NO_RESULT))
     conn = empty_db
     load(conn, tmp_path)
     load(conn, tmp_path)  # idempotent
     one = lambda sql, *p: conn.execute(sql, p).fetchone()[0]  # noqa: E731
     home, away, home_team = conn.execute(
-        "select m.home_score, m.away_score, t.short_name from matches m join teams t on t.id = m.home_team_id").fetchone()
+        "select m.home_score, m.away_score, t.short_name from matches m join teams t on t.id = m.home_team_id"
+        " where m.kickoff_at::date = '2025-03-22'").fetchone()
     assert (home, away, home_team) == (13, 3, "CSK")  # 4+1wd+6+1+1nb; super over excluded
-    assert one("select count(*) from match_events") == 9
+    assert one("select count(*) from match_events e join matches m on m.id = e.match_id"
+               " where m.kickoff_at::date = '2025-03-22'") == 9
 
     def stat(name, key):
         return conn.execute(
@@ -80,3 +102,15 @@ def test_loads_ball_by_ball_into_the_ipl(empty_db, tmp_path):
     assert stat("Keeper K", "catches") == (1,)
     assert stat("Bat X", "batting_average") is None  # not out: undefined, not zero
     assert one("select balls from v_cricket_matchups m join players p on p.id = m.batter_id where p.full_name = 'Opener One'") == 3
+
+
+def test_results_renamed_franchises_and_season_dates(empty_db, tmp_path):
+    for name, match in (("1001", MATCH), ("1002", SUPER_OVER), ("1003", NO_RESULT)):
+        (tmp_path / f"{name}.json").write_text(json.dumps(match))
+    conn = empty_db
+    load(conn, tmp_path)
+    table = dict(conn.execute("select t.short_name, l.points from v_league_table l join teams t on t.id = l.team_id").fetchall())
+    # CSK: win + no result; MI: loss + super-over win; RCB (former name): super-over loss + no result.
+    assert table == {"CSK": 3, "MI": 2, "RCB": 1}
+    assert conn.execute("select count(*) from teams where sport_id = 'cricket'").fetchone()[0] == 10  # no duplicate RCB
+    assert conn.execute("select starts_on::text, ends_on::text from seasons").fetchone() == ("2025-03-22", "2025-03-28")

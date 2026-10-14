@@ -57,6 +57,11 @@ export interface MetricDefinition {
    * and fictional demo data. Not used for any decision.
    */
   typical?: readonly [number, number];
+  /**
+   * For rate metrics: the count metric that is the rate's denominator (e.g. completion %
+   * by pass attempts), used to combine rates across a player's teams.
+   */
+  weightBy?: string;
 }
 
 export interface ExposureUnit {

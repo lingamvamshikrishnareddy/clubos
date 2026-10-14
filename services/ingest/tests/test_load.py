@@ -146,3 +146,34 @@ def test_unknown_competition_season(conn):
     with pytest.raises(ValueError):
         load_competition_season(conn, 99, 99, fetch=FILES.__getitem__)
     assert scalar(conn, "select count(*) from ingestion_runs") == 0
+
+
+def test_knockouts_stay_out_of_tables_and_groups_are_recorded(empty_db):
+    group_match = {**MATCH, "competition_stage": {"name": "Group Stage"},
+                   "home_team": {**MATCH["home_team"], "home_team_group": "F"},
+                   "away_team": {**MATCH["away_team"], "away_team_group": "F"}}
+    final = {**MATCH, "match_id": 124, "match_date": "2025-12-18", "competition_stage": {"name": "Final"},
+             "home_score": 3, "away_score": 3}
+    files = {**FILES, "matches/1/2.json": [group_match, final], "events/124.json": EVENTS}
+    conn = empty_db
+    load_competition_season(conn, 1, 2, fetch=files.__getitem__)
+    assert dict(conn.execute("select stage, count(*) from matches group by 1").fetchall()) == {"regular": 1, "final": 1}
+    table = conn.execute("select team, played, points, group_name, group_position from v_league_table order by position").fetchall()
+    assert table == [("Riverside FC", 1, 3, "2025/26 Group F", 1), ("Hillcrest United", 1, 0, "2025/26 Group F", 2)]
+
+
+def test_reference_league_absorbs_an_earlier_statsbomb_competition(empty_db):
+    from clubos_ingest.leagues import load_leagues
+
+    conn = empty_db
+    premier = [{**COMPETITIONS[0], "competition_id": 2, "season_id": 27, "competition_name": "Premier League",
+                "season_name": "2015/2016"}]
+    files = {"competitions.json": premier, "matches/2/27.json": [MATCH], "events/123.json": EVENTS}
+    load_competition_season(conn, 2, 27, fetch=files.__getitem__)  # before the reference league exists
+    ids = load_leagues(conn, ["premier_league"])
+    one = lambda sql: conn.execute(sql).fetchone()[0]  # noqa: E731
+    assert one("select count(*) from competitions where sport_id = 'soccer'") == 1
+    assert one("select count(*) from seasons where competition_id = (select id from competitions where reference_key = 'premier_league')") == 1
+    load_competition_season(conn, 2, 27, fetch=files.__getitem__)  # reload goes into the reference league
+    assert one("select count(*) from competitions where sport_id = 'soccer'") == 1
+    assert ids["premier_league"] == one("select id from competitions where reference_key = 'premier_league'")

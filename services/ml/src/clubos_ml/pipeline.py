@@ -60,6 +60,7 @@ class Sample:
     percentiles: dict[str, float] = field(default_factory=dict)
     values: dict[str, float] = field(default_factory=dict)
     low_sample: bool = False
+    exposure_unit: str = ""
 
     @property
     def performance_score(self) -> float | None:
@@ -72,31 +73,40 @@ def age_on(birth: date | None, on: date) -> float | None:
 
 def merge_team_rows(samples: list[Sample], metrics: dict[str, dict[str, Any]]) -> list[Sample]:
     """One sample per player and season. A player who moved teams mid-season has a row per
-    team; counts are summed, rates are weighted by exposure, and the role is the one with
-    the most exposure (like a stats site's combined line for a traded player)."""
+    team, merged like a stats site's combined line for a traded player:
+    - only rows measured in the same exposure unit as the main row (the one with the most
+      exposure) are combined, so kicks are never added to snaps;
+    - counts are summed;
+    - rates are weighted by their own denominator when the sport names one (metric
+      "weightBy", e.g. completion % by pass attempts), otherwise by exposure."""
     grouped: dict[tuple[Any, Any], list[Sample]] = defaultdict(list)
     for s in samples:
         grouped[(s.player_id, s.season_id)].append(s)
     merged = []
     for group in grouped.values():
-        if len(group) == 1:
-            merged.append(group[0])
-            continue
         main = max(group, key=lambda s: s.exposure)
-        exposure = sum(s.exposure for s in group)
+        group = [s for s in group if s.exposure_unit == main.exposure_unit]
+        if len(group) == 1:
+            merged.append(main)
+            continue
         totals: dict[str, float | None] = {}
         for key in {k for s in group for k in s.totals}:
             present = [s for s in group if s.totals.get(key) is not None]
             if not present:
                 totals[key] = None
             elif metrics.get(key, {}).get("normalisation") == "rate":
-                weight = sum(s.exposure for s in present)
-                totals[key] = (sum(s.totals[key] * s.exposure for s in present) / weight if weight
+                weight_by = metrics[key].get("weightBy")
+
+                def weight(s: Sample) -> float:
+                    return (s.totals.get(weight_by) or 0.0) if weight_by else s.exposure
+
+                total_weight = sum(weight(s) for s in present)
+                totals[key] = (sum(s.totals[key] * weight(s) for s in present) / total_weight if total_weight
                                else mean(s.totals[key] for s in present))
             else:
                 totals[key] = sum(s.totals[key] for s in present)
         merged.append(Sample(main.player_id, main.competition_id, main.season_id, main.season_label, main.role,
-                             exposure, main.birth_date, totals))
+                             sum(s.exposure for s in group), main.birth_date, totals, exposure_unit=main.exposure_unit))
     return merged
 
 
@@ -114,20 +124,21 @@ def latest_samples(conn: psycopg.Connection, sport: dict[str, Any]) -> list[Samp
           order by se.competition_id, se.starts_on desc nulls last
         )
         select s.player_id, l.competition_id, l.id, l.label, s.role_key, s.exposure, p.birth_date,
-               coalesce(jsonb_object_agg(v.metric_key, v.value) filter (where v.metric_key is not null), '{}')
+               coalesce(jsonb_object_agg(v.metric_key, v.value) filter (where v.metric_key is not null), '{}'),
+               s.exposure_unit
         from player_season_stats s
         join latest l on l.id = s.season_id
         join players p on p.id = s.player_id
         left join player_season_metric_values v on v.season_stats_id = s.id
         where s.role_key is not null and s.exposure is not null
-        group by s.id, s.player_id, l.competition_id, l.id, l.label, s.role_key, s.exposure, p.birth_date
+        group by s.id, s.player_id, l.competition_id, l.id, l.label, s.role_key, s.exposure, p.birth_date, s.exposure_unit
         """,
         (sport["id"],),
     ).fetchall()
     metrics = {m["key"]: m for m in sport["metrics"]}
     samples = merge_team_rows([
         Sample(r[0], r[1], r[2], r[3], r[4], float(r[5]), r[6],
-               {k: (float(v) if v is not None else None) for k, v in r[7].items()})
+               {k: (float(v) if v is not None else None) for k, v in r[7].items()}, exposure_unit=r[8])
         for r in rows
     ], metrics)
     groups: dict[tuple[Any, str], list[Sample]] = defaultdict(list)
