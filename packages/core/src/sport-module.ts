@@ -1,0 +1,62 @@
+/**
+ * The contract every sport implements. Core code (accounts, squads, shortlists,
+ * budgets, reporting) depends only on this interface and never on a specific sport.
+ * See docs/adr/0001-shared-platform-sport-modules.md.
+ */
+
+export type SportId =
+  | "soccer"
+  | "american_football"
+  | "baseball"
+  | "basketball"
+  | "ice_hockey"
+  | "cricket";
+
+/** A tactical role used to compare like with like (e.g. soccer "fullback"). */
+export interface Role {
+  key: string;
+  label: string;
+  /** Broad grouping for UI and fallbacks, e.g. "defence". */
+  group: string;
+}
+
+/** An on-field event type in this sport's event model. */
+export interface EventType {
+  key: string;
+  label: string;
+}
+
+/**
+ * How a raw value is made comparable across players with different playing time.
+ * Each sport names its own exposure unit (minutes, possessions, innings, plate appearances...).
+ */
+export type Normalisation = "total" | "per_exposure" | "rate";
+
+export interface MetricDefinition {
+  key: string;
+  label: string;
+  description: string;
+  unit: "count" | "ratio" | "expected_goals";
+  normalisation: Normalisation;
+  higherIsBetter: boolean;
+}
+
+export interface ExposureUnit {
+  /** e.g. "minutes" */
+  key: string;
+  /** Per-exposure values are expressed per this many units, e.g. 90 minutes. */
+  per: number;
+  /** Below this exposure a player's per-exposure values are flagged as low-sample. */
+  minimumForComparison: number;
+}
+
+export interface SportModule {
+  id: SportId;
+  name: string;
+  exposure: ExposureUnit;
+  roles: readonly Role[];
+  eventTypes: readonly EventType[];
+  metrics: readonly MetricDefinition[];
+  /** Metrics shown by default when comparing players in a role. */
+  comparisonMetrics(roleKey: string): readonly string[];
+}

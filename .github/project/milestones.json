@@ -1,0 +1,9 @@
+[
+  { "title": "Stage 1 – Recruitment core", "description": "Player database, data imports, comparisons, scouting reports, shortlists, lightweight squad view." },
+  { "title": "Stage 2 – Video and match evidence", "description": "Video tagging, clip creation, event-linked statistics, tactical reports." },
+  { "title": "Stage 3 – Connected decisions", "description": "Tactical-fit recommendations, performance forecasts, budget scenarios." },
+  { "title": "Stage 4 – Development and availability", "description": "Training loads, player development, workload alerts and risk indicators (decision support for qualified staff)." },
+  { "title": "Stage 5 – Squad operations", "description": "Attendance, contracts, staff workflows, academy administration." },
+  { "title": "Stage 6 – Commercial operations", "description": "Stadium income, sponsorships, advertising inventory, deals, executive financial planning." },
+  { "title": "Stage 7 – Additional sports", "description": "Further sport-specific engines on the shared foundation." }
+]

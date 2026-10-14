@@ -1,0 +1,27 @@
+name: Data source request
+description: Propose a new data provider or connector
+labels: ["type:data"]
+body:
+  - type: input
+    id: provider
+    attributes:
+      label: Provider and dataset
+    validations:
+      required: true
+  - type: textarea
+    id: licence
+    attributes:
+      label: Licence and terms
+      description: Can we store it? Redistribute derived metrics? Attribution required? Cost?
+    validations:
+      required: true
+  - type: textarea
+    id: coverage
+    attributes:
+      label: Coverage
+      description: Sports, competitions, seasons, event or tracking granularity.
+  - type: textarea
+    id: identity
+    attributes:
+      label: Identity mapping
+      description: Which player/team/match IDs does it use and how do they map to ours?

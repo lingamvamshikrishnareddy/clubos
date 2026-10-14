@@ -1,0 +1,21 @@
+[
+  { "name": "layer:intelligence", "color": "1d76db", "description": "Sports intelligence: recruitment, ML, match analysis, development" },
+  { "name": "layer:club-ops", "color": "0e8a16", "description": "Club operating system: squad, training, staff, facilities" },
+  { "name": "layer:business", "color": "b60205", "description": "Finance, commercial revenue, academy payments, executive reporting" },
+  { "name": "layer:platform", "color": "5319e7", "description": "Shared foundation: auth, data platform, infrastructure" },
+  { "name": "sport:soccer", "color": "c5def5", "description": "Association football" },
+  { "name": "sport:cricket", "color": "c5def5", "description": "Cricket" },
+  { "name": "sport:basketball", "color": "c5def5", "description": "Basketball" },
+  { "name": "sport:baseball", "color": "c5def5", "description": "Baseball" },
+  { "name": "sport:american-football", "color": "c5def5", "description": "American football" },
+  { "name": "sport:ice-hockey", "color": "c5def5", "description": "Ice hockey" },
+  { "name": "type:feature", "color": "a2eeef", "description": "New user-facing capability" },
+  { "name": "type:data", "color": "fbca04", "description": "Data model, connectors, provenance, identity" },
+  { "name": "type:ml", "color": "d876e3", "description": "Models, forecasts, recommendations" },
+  { "name": "type:infra", "color": "bfd4f2", "description": "CI, deployment, tooling" },
+  { "name": "type:bug", "color": "d73a4a", "description": "Something is broken" },
+  { "name": "decision:who-to-sign", "color": "f9d0c4", "description": "Supports: who should we sign?" },
+  { "name": "decision:where-losing", "color": "f9d0c4", "description": "Supports: where are we losing performance?" },
+  { "name": "decision:availability", "color": "f9d0c4", "description": "Supports: how do we improve availability and development?" },
+  { "name": "decision:budget", "color": "f9d0c4", "description": "Supports: how do we allocate our budget?" }
+]

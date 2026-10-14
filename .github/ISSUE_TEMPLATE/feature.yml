@@ -1,0 +1,37 @@
+name: Feature
+description: A new capability for club staff
+labels: ["type:feature"]
+body:
+  - type: dropdown
+    id: decision
+    attributes:
+      label: Which decision does this support?
+      options:
+        - Who should we sign?
+        - Where are we losing performance?
+        - How do we improve availability and development?
+        - How do we allocate our budget?
+        - Club operations (no single decision)
+    validations:
+      required: true
+  - type: input
+    id: user
+    attributes:
+      label: Who uses it?
+      placeholder: e.g. Sporting director, analyst, scout
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What can't the user do today, and what does it cost them?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: "- [ ] ..."
+    validations:
+      required: true

@@ -1,0 +1,20 @@
+node_modules/
+dist/
+coverage/
+.turbo/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Data and media never live in git: use object storage (see ADR-0002)
+data/
+*.mp4
+*.mov
+*.mkv

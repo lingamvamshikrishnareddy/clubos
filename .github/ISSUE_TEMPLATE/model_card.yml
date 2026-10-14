@@ -1,0 +1,30 @@
+name: Model card
+description: Propose or document an ML model
+labels: ["type:ml"]
+body:
+  - type: textarea
+    id: purpose
+    attributes:
+      label: Intended use and decision supported
+      description: Who acts on the output, and what must it never be used for?
+    validations:
+      required: true
+  - type: textarea
+    id: data
+    attributes:
+      label: Training data
+      description: Sources, competitions, seasons, known gaps and biases.
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation
+      description: Evaluation method, baseline it must beat, calibration, out-of-sample results.
+    validations:
+      required: true
+  - type: textarea
+    id: explainability
+    attributes:
+      label: Explanation shown to users
+      description: How uncertainty and the evidence behind each output are presented.

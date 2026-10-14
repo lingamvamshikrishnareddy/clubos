@@ -1,0 +1,17 @@
+{
+  "name": "@clubos/sport-soccer",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./metrics.json": "./metrics.json"
+  },
+  "scripts": {
+    "typecheck": "tsc -p .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@clubos/core": "workspace:*"
+  }
+}

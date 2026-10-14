@@ -1,0 +1,37 @@
+# Run once from the Actions tab (after this file is on the default branch) to create
+# the labels and milestones defined in .github/project/. Safe to re-run.
+name: Bootstrap labels and milestones
+
+on:
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Labels
+        run: |
+          jq -c '.[]' .github/project/labels.json | while read -r label; do
+            gh label create "$(jq -r .name <<<"$label")" \
+              --color "$(jq -r .color <<<"$label")" \
+              --description "$(jq -r .description <<<"$label")" \
+              --repo "$REPO" --force
+          done
+      - name: Milestones
+        run: |
+          existing=$(gh api "repos/$REPO/milestones?state=all&per_page=100" --jq '.[].title')
+          jq -c '.[]' .github/project/milestones.json | while read -r milestone; do
+            title=$(jq -r .title <<<"$milestone")
+            if grep -qxF "$title" <<<"$existing"; then
+              echo "exists: $title"
+            else
+              gh api "repos/$REPO/milestones" -f title="$title" -f description="$(jq -r .description <<<"$milestone")"
+            fi
+          done
